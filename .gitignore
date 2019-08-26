@@ -1,0 +1,4 @@
+build
+old
+.DS_Store
+*.pyc
