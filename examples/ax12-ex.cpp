@@ -10,6 +10,10 @@ int main() {
 
     AX12 servo;
     // servo.open("/dev/ttyS0", 17);
+    packet ping = servo.make_ping(BROADCAST_ADDR);
+    PingResponse ans = servo.send(ping);
+
+for (auto const& s: ans) cout << s.id << endl;
 
     while (true){
         int pos = rand()%250;

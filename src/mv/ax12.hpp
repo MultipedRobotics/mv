@@ -1,5 +1,6 @@
 #pragma once
 
+#include <common.hpp>
 #include <protocol1.hpp>
 #include <SerialPort.hpp>
 
