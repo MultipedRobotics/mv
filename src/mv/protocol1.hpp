@@ -4,10 +4,10 @@
 #include <string>
 #include <vector>
 #include <stdint.h>
-
-typedef uint8_t byte;
-typedef std::vector<byte> packet;
-typedef std::vector<byte> parameters;
+#include <common.hpp>
+// typedef uint8_t byte;
+// typedef std::vector<byte> packet;
+// typedef std::vector<byte> parameters;
 
 /*
 Sync - write/read to all servos using the same registers/data (smaller)
