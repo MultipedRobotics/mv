@@ -23,11 +23,11 @@ public:
     void close();
     bool open(const std::string& port, int pin);
 
-    int write(uint8_t *s, const uint16_t num);
+    int write(uint8_t *s, const size_t num);
     int write(const std::string& s);
     //int write(const std::vector<uint8_t>& buffer){}
 
-    size_t read(const size_t number);
+    // size_t read(const size_t number);
     size_t read(const size_t number, uint8_t *buffer);
 
     void setRTS(bool enabled);
@@ -37,7 +37,7 @@ protected:
     const bool DD_WRITE, DD_READ;
     void setPin(bool enabled, int pin);
     boost::asio::serial_port serial;
-    std::array<std::uint8_t, 1024> buffer;
+    // std::array<std::uint8_t, 1024> buffer;
     int dir_pin;
 
 #if (__arm__)

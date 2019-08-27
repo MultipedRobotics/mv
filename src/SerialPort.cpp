@@ -58,14 +58,14 @@ int SerialPort::write(const string& s){
     return asio::write(serial, asio::buffer(s.c_str(),s.size()));
 }
 
-int SerialPort::write(uint8_t *buff, const uint16_t num){
+int SerialPort::write(uint8_t *buff, const size_t num){
     return asio::write(serial, asio::buffer(buff,num));
 }
 
-size_t SerialPort::read(const size_t number){
-    size_t len = asio::read(serial, asio::buffer(&buffer, number));
-    return len;
-}
+// size_t SerialPort::read(const size_t number){
+//     size_t len = asio::read(serial, asio::buffer(&buffer, number));
+//     return len;
+// }
 
 size_t SerialPort::read(const size_t number, uint8_t *buff){
     size_t len = asio::read(serial, asio::buffer(buff, number));

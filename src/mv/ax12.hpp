@@ -3,6 +3,7 @@
 #include <common.hpp>
 #include <protocol1.hpp>
 #include <SerialPort.hpp>
+#include <array>
 
 // --------- INSTRUCTIONS -----
 constexpr byte PING      = 0x01;
@@ -64,6 +65,24 @@ public:
     ~AX12(){}
     void open(const std::string& port, int pin){
         serial.open(port, pin);
+    }
+
+    void write(const packet& msg){
+        const uint8_t *data = msg.data();
+        // serial.write(data, msg.size());
+    }
+
+    packets read(){
+        std::array<std::uint8_t, 1024> buffer;
+        uint8_t *p = buffer.data();
+        serial.read(1024, p);
+        packets pp;
+        return pp;
+    }
+
+    PingResponse ping(){
+        PingResponse ans;
+        return ans;
     }
 
     // const int MAX_RPM {59.0/0.111};

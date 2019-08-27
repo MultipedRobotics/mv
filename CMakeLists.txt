@@ -44,10 +44,12 @@ add_library(${PROJECT_NAME} ${LIB})
 target_include_directories(${PROJECT_NAME}
     PUBLIC
         src/mv
+        ${Boost_INCLUDE_DIRS}
 )
 target_link_libraries(${PROJECT_NAME}
     PUBLIC
-        ${Boost_SYSTEM_LIBRARY}
+        # ${Boost_SYSTEM_LIBRARY}
+        ${Boost_LIBRARIES}
 )
 
 # Executable -------------------------------------------------------
