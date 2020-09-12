@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-PROJECT(ax12)
+PROJECT(mv)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -21,10 +21,10 @@ message(STATUS " ${PROC}")
 message(STATUS "-------------------------------------")
 
 # Boost -----------------------------------------------------------
-find_package(Boost REQUIRED system)
+# find_package(Boost REQUIRED system)
 
 # Threads ---------------------------------------------------------
-find_package(Threads REQUIRED)
+# find_package(Threads REQUIRED)
 
 # Pi ---------------------------------------------------------------
 # Need to figure out if we need to link against pigpio or not
@@ -44,20 +44,26 @@ add_library(${PROJECT_NAME} ${LIB})
 target_include_directories(${PROJECT_NAME}
     PUBLIC
         src/
-        ${Boost_INCLUDE_DIRS}
+        # ${Boost_INCLUDE_DIRS}
 )
-target_link_libraries(${PROJECT_NAME}
-    PUBLIC
-        # ${Boost_SYSTEM_LIBRARY}
-        ${Boost_LIBRARIES}
-)
+# target_link_libraries(${PROJECT_NAME}
+#     PUBLIC
+#         # ${Boost_SYSTEM_LIBRARY}
+#         ${Boost_LIBRARIES}
+# )
 
 # Executable -------------------------------------------------------
 add_executable(ax12-ex examples/ax12-ex.cpp)
 target_link_libraries(ax12-ex
     PUBLIC
         ${PROJECT_NAME}
-        ${CMAKE_THREAD_LIBS_INIT}
-        ${OTHER}
+        # ${CMAKE_THREAD_LIBS_INIT}
+        # ${OTHER}
 )
 # target_compile_definitions(main PRIVATE RPI=1)
+
+# Tests --------------------------------------------------------------
+option(TESTS "gecko google tests" ON)
+if(${TESTS})
+    add_subdirectory(test)
+endif()

@@ -5,6 +5,7 @@
 #include <vector>
 #include <stdint.h>
 #include <mv/common.hpp>
+#include <string.h> // memset
 
 /*
 Sync - write/read to all servos using the same registers/data (smaller)
@@ -112,6 +113,15 @@ constexpr uint8_t CCW_AL                 =  255;
 // #define LOCK                        1
 }
 
+typedef struct {
+    bool input_voltage; // 0
+    bool angle_limit;   // 1
+    bool overheating;   // 2
+    bool range;         // 3
+    bool checksum;      // 4
+    bool overload;      // 5
+    bool instruction;   // 6
+} AxError;
 
 // https://github.com/jumejume1/AX-12A-servo-library/blob/master/src/AX12A.cpp
 // https://github.com/mikeferguson/etherbotix/blob/ros2/include/etherbotix/dynamixel.hpp
@@ -130,9 +140,10 @@ public:
     packet make_write_packet(uint8_t ID, uint8_t reg, uint16_t data){
         uint8_t hi = data >> 8;
         uint8_t lo = data & 0xff;
-        uint8_t Checksum = (~(ID + 2 + AX::WRITE_DATA + reg + lo + hi)) & 0xFF;
+        const uint8_t len = 5;
+        uint8_t Checksum = (~(ID + len + AX::WRITE_DATA + reg + lo + hi)) & 0xFF;
 
-        packet pkt {AX::START,AX::START,ID,2,AX::WRITE_DATA,reg,lo,hi,Checksum};
+        packet pkt {AX::START,AX::START,ID,len,AX::WRITE_DATA,reg,lo,hi,Checksum};
 
         return pkt;
     }
@@ -142,9 +153,10 @@ public:
         uint8_t lo1 = data1 & 0xff;
         uint8_t hi2 = data2 >> 8;
         uint8_t lo2 = data2 & 0xff;
-        uint8_t Checksum = (~(ID + 4 + AX::WRITE_DATA + reg + lo1 + hi1 + lo2+hi2)) & 0xFF;
+        const uint8_t len = 7;
+        uint8_t Checksum = (~(ID + len + AX::WRITE_DATA + reg + lo1 + hi1 + lo2+hi2)) & 0xFF;
 
-        packet pkt {AX::START,AX::START,ID,4,AX::WRITE_DATA,reg,lo1,hi1,lo2,hi2,Checksum};
+        packet pkt {AX::START,AX::START,ID,len,AX::WRITE_DATA,reg,lo1,hi1,lo2,hi2,Checksum};
 
         return pkt;
     }
@@ -254,6 +266,24 @@ public:
 
     void decodePacket(const packet& data){
 
+    }
+
+    uint8_t status_error(const packet& pkt){
+        return pkt[4];
+    }
+
+    AxError decode_error(uint8_t b){
+        AxError err;
+        memset(&err, 0, sizeof(AxError));
+        if (b & 1) err.input_voltage = true;
+        if (b & 2) err.angle_limit = true;
+        if (b & 4) err.overheating = true;
+        if (b & 8) err.range = true;
+        if (b & 16) err.checksum = true;
+        if (b & 32) err.overload = true;
+        if (b & 64) err.instruction = true;
+
+        return err;
     }
 };
 

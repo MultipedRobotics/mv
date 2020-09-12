@@ -1,0 +1,29 @@
+name: Cpp
+on: [push]
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@master
+
+            # - name: Cache node modules
+            #   uses: actions/cache@v1
+            #   with:
+            #     path: /opt/gecko
+            #     key: ${{ runner.OS }}-build-extlibs
+            #     restore-keys: |
+            #       ${{ runner.OS }}-build-extlibs
+
+            # - name: Install dependencies
+            #   run: |
+            #     cd cpp
+            #     chmod a+x *.sh
+            #     ./build_extlibs.sh
+            - name: Test gecko
+              run: |
+                mkdir -p build
+                cd build
+                cmake ..
+                make
+                ./test/test-all
