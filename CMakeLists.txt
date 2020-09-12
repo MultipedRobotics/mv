@@ -28,11 +28,11 @@ find_package(Threads REQUIRED)
 
 # Pi ---------------------------------------------------------------
 # Need to figure out if we need to link against pigpio or not
-if (PI)
-    set(OTHER "pigpio rt")
-else ()
-    set(OTHER "")
-endif (PI)
+# if (PI)
+#     set(OTHER "pigpio rt")
+# else ()
+#     set(OTHER "")
+# endif (PI)
 
 # Build AX-12 library ----------------------------------------------
 set(LIB
@@ -43,7 +43,7 @@ set(LIB
 add_library(${PROJECT_NAME} ${LIB})
 target_include_directories(${PROJECT_NAME}
     PUBLIC
-        src/mv
+        src/
         ${Boost_INCLUDE_DIRS}
 )
 target_link_libraries(${PROJECT_NAME}

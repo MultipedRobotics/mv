@@ -5,6 +5,11 @@
 Yet another Dynamexl library for smart servos. This is call `mv` after the
 unix move command.
 
+**Sort of a mess right now** :smile:
+
+## Cool
+
+- [termcolor](https://github.com/ikalnytskyi/termcolor)
 
 ## Examples
 

@@ -1,4 +1,4 @@
-#include "protocol2.hpp"
+#include "mv/protocol2.hpp"
 
 uint16_t crc(uint16_t crc_accum, const packet& pkt){
     uint16_t csum = 0;
@@ -41,7 +41,7 @@ uint16_t crc(uint16_t crc_accum, const packet& pkt){
     0x0234, 0x8231, 0x8213, 0x0216, 0x021C, 0x8219, 0x0208,
     0x820D, 0x8207, 0x0202 };
 
-    for (const byte& d: pkt){
+    for (const uint8_t& d: pkt){
         i = ((uint16_t)(csum >> 8) ^ d) & 0xFF;
         csum = (csum << 8) ^ crc_table[i];
     }
