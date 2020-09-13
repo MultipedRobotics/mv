@@ -11,7 +11,7 @@ void compare_packets(const packet& a, const packet& b){
 }
 
 // move to 150 deg or 511 counts
-TEST(protocol_1, move) {
+TEST(ax12, move) {
     AX12 servo;
 
     packet pkt = servo.make_move_packet(1, 511);
@@ -20,7 +20,23 @@ TEST(protocol_1, move) {
     compare_packets(pkt, ans);
 }
 
-TEST(protocol_1, sync_move){
+TEST(ax12, sync_move){
+    AX12 servo;
+
+    vector<ServoMoveSpeed_t> s {
+        {1, 100,0},
+        {2, 200,0},
+        {3, 300,0},
+        {4, 400,0}
+    };
+
+    packet pkt = servo.make_sync_move_speed_packet(s);
+    packet ans {255,255,254,16,131,30,2,1,100,0,2,200,0,3,44,1,4,144,1,90};
+
+    compare_packets(pkt, ans);
+}
+
+TEST(ax12, sync_move_speed){
     AX12 servo;
 
     vector<ServoMoveSpeed_t> s {
@@ -34,14 +50,14 @@ TEST(protocol_1, sync_move){
     compare_packets(pkt, ans);
 }
 
-TEST(protocol_1, ping){
+TEST(ax12, ping){
     AX12 servo;
     packet pkt = servo.make_ping_packet(1);
     packet ans {0xFF,0xFF,0x01,0x02,0x01,0xFB};
     compare_packets(pkt, ans);
 }
 
-TEST(protocol_1, write){
+TEST(ax12, write){
     AX12 servo;
     packet pkt = servo.make_write8_packet(AX12::BROADCAST_ID, AX::ID, 1);
     packet ans {0xFF,0xFF,0xFE,0x04,0x03,0x03,0x01,0xF6};

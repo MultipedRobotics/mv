@@ -46,7 +46,7 @@ uint16_t Protocol2::crc(uint16_t crc_accum, const packet& pkt){
     0x820D, 0x8207, 0x0202 };
 
     for (const uint8_t& d: pkt){
-        i = ((uint16_t)(csum >> 8) ^ d) & 0xFF;
+        int i = ((uint16_t)(csum >> 8) ^ d) & 0xFF;
         csum = (csum << 8) ^ crc_table[i];
     }
 

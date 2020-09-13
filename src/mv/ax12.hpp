@@ -1,6 +1,7 @@
 #pragma once
 
-
+#include <mv/common.hpp>
+#include <mv/protocol1.hpp>
 
 namespace AX {
 // EEPROM AREA  ///////////////////////////////////////////////////////////
@@ -103,28 +104,22 @@ constexpr uint8_t MOVING                 =  46;
 // constexpr uint8_t CCW_AL                 =  255;
 // #define TIME_OUT                    10
 // #define LOCK                        1
+
+void delay(uint16_t current, uint16_t last);
+
+
 }
+
+
 
 class AX12: public Protocol1 {
 public:
-    AX12(){}
+    AX12();
+    ~AX12();
 
-    packet make_move_packet(uint8_t ID, uint16_t position){
-        return make_write16_packet(ID, AX::GOAL_POSITION, position);
-    }
-
-    packet make_torque_packet(uint8_t ID, bool enable){
-        const uint8_t t = enable ? 1 : 0;
-        return make_write8_packet(ID, AX::TORQUE_ENABLE, t);
-    }
-
-    packet make_sync_move_speed_packet(const std::vector<ServoMoveSpeed_t>& info){
-        return make_sync_write_packet(AX::GOAL_POSITION, info);
-    }
-
-    packet make_sync_move_packet(const std::vector<ServoMove_t>& info){
-        return make_sync_write_packet(AX::GOAL_POSITION, info);
-    }
+    packet make_move_packet(uint8_t ID, uint16_t position);
+    packet make_torque_packet(uint8_t ID, bool enable);
+    packet make_sync_move_speed_packet(const std::vector<ServoMoveSpeed_t>& info);
 };
 
 

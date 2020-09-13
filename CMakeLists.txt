@@ -38,7 +38,8 @@ message(STATUS "-------------------------------------")
 set(LIB
     src/SerialPort.cpp
     src/protocol1.cpp
-    # src/protocol2.cpp
+    src/protocol2.cpp
+    src/ax12.cpp
 )
 add_library(${PROJECT_NAME} ${LIB})
 target_include_directories(${PROJECT_NAME}
