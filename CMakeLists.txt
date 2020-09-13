@@ -20,6 +20,14 @@ message(STATUS " ${OSN}: ${OS_VERSION}")
 message(STATUS " ${PROC}")
 message(STATUS "-------------------------------------")
 
+# configure_file(${path to configure file 'config.h.in'}
+# include_directories(${PROJECT_BINARY_BIN}) // this allows the 'config.h' file to be used throughout the program
+
+# set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+# set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
+# set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
+# include(CPack)
+
 # Boost -----------------------------------------------------------
 # find_package(Boost REQUIRED system)
 
