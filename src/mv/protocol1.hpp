@@ -28,8 +28,6 @@ SOFTWARE.
 #include <vector>
 #include <stdint.h>
 #include <mv/common.hpp>
-// #include <string.h> // memset
-// #include <termcolor/termcolor.hpp>
 
 typedef struct {
     bool input_voltage; // 0
@@ -66,19 +64,13 @@ public:
     packet make_write16_packet(uint8_t ID, uint8_t reg, uint16_t data);
     packet make_write_packet(uint8_t ID, uint8_t reg, uint16_t data1, uint16_t data2);
     // single servo
-    // packet make_move_packet(uint8_t ID, uint16_t position);
-    // packet make_read_position_packet(uint8_t ID);
     packet make_ping_packet(uint8_t ID=BROADCAST_ID);
     packet make_reset_packet(uint8_t ID);
-    // packet make_moving_packet(uint8_t ID);
-    // packet make_torque_packet(uint8_t ID, bool enable);
     // multi-servo sync
     packet make_sync_write_packet(const uint8_t reg, const std::vector<ServoMoveSpeed_t>& info);
-    // packet make_sync_write_packet(const uint8_t reg, const std::vector<ServoMove_t>& info);
-    // packet make_sync_write_packet(const uint8_t reg, const std::vector<ServoMoveSpeed_t>& info);
     // packet make_sync_read_packet(uint8_t address, uint8_t length, const std::vector<uint8_t>& ids);
     // feedback
-    void decodePacket(const packet& data);
+    // void decodePacket(const packet& data);
     uint8_t status_error(const packet& pkt);
     AxError decode_error(uint8_t b);
 
