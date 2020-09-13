@@ -36,7 +36,8 @@ if (CMAKE_VERSION VERSION_LESS 2.8.11)
 endif()
 
 list(APPEND gtests
-    test.cpp
+    protocol_1.cpp
+    protocol_2.cpp
 )
 
 message(STATUS "Gecko::gTests ----------------------")

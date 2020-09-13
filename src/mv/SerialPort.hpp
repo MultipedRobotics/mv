@@ -17,9 +17,23 @@
 constexpr bool DD_WRITE = false;  // false
 constexpr bool DD_READ = !DD_WRITE;
 
-void msleep(unsigned int msec){
+static void msleep(unsigned int msec){
     usleep(1000*msec);
 }
+
+// class Header {
+//     uint8_t id;
+//     uint8_t error;
+// };
+// class Moving : public Header {
+//     bool moving;
+// };
+
+typedef struct {
+    uint8_t id;
+    uint8_t error;
+    std::vector<uint8_t> params;
+} status_t;
 
 class Serial {
     int fd;
@@ -56,8 +70,8 @@ public:
         tcflush(fd, TCIFLUSH);
         if (tcsetattr(fd, TCSANOW, &t) < 0) perror("*** Couldn't set port attribute");
 
-        if (tcgetattr(fd, &t) < 0) perror("Couldn't get port attribute");
-        printf(">> %u %u \n", cfgetispeed(&t), cfgetospeed(&t));
+        // if (tcgetattr(fd, &t) < 0) perror("Couldn't get port attribute");
+        // printf(">> %u %u \n", cfgetispeed(&t), cfgetospeed(&t));
 
         set_dir(DD_READ);
         msleep(100);
@@ -70,64 +84,137 @@ public:
         if (fd > 0) ::close(fd);
     }
 
-    int write(const packet& buff){
+    int write(const packet& pkt){
         set_dir(DD_WRITE);
-        int ret = ::write(fd, buff.data(), buff.size());
+        int ret = ::write(fd, pkt.data(), pkt.size());
         // for (const auto& p: buff) ::write(fd, (void*)&p, 1);
+        flush_output();
+        msleep(1);
         set_dir(DD_READ);
-        flush();
-        return ret;
-        // return 0;
-    }
-
-    int read(const size_t number){
-        // buffer.clear();
-        buffer.fill(0);
-        size_t remain = number;
-        while(remain > 0){
-            remain -= ::read(fd, buffer.data(), remain);
-        }
-
-        int ret = 0;
-        if (buffer[0] == 255 && buffer[1] == 255){
-            // if (buffer[4] == 0) cout << termcolor::green << "GOOD" << termcolor::reset << endl;
-        }
-
-        // TODO: check error code and return it if error
         return ret;
     }
 
-    packet read(){
-        // buffer.clear();
-        buffer.fill(0);
+    // int read(const size_t number){
+    //     // buffer.clear();
+    //     buffer.fill(0);
+    //     size_t remain = number;
+    //     while(remain > 0){
+    //         remain -= ::read(fd, buffer.data(), remain);
+    //     }
+    //
+    //     int ret = 0;
+    //     if (buffer[0] == 255 && buffer[1] == 255){
+    //         // if (buffer[4] == 0) cout << termcolor::green << "GOOD" << termcolor::reset << endl;
+    //     }
+    //
+    //     // TODO: check error code and return it if error
+    //     return ret;
+    // }
+
+    int read(){
+        // smallest packet is 6 bytes
         int num = available();
-        if (num == 0) {
-            packet pkt;
-            return pkt;
-        }
+        if (num < 6) return 0;
 
+        buffer.fill(0);
         size_t remain = num;
         while(remain > 0){
-            remain -= ::read(fd, buffer.data(), remain);
+            remain -= ::read(fd, buffer.data() + remain, remain);
         }
 
-        // int ret = 0;
-        // if (buffer[0] == 255 && buffer[1] == 255){
-        //     // if (buffer[4] == 0) cout << termcolor::green << "GOOD" << termcolor::reset << endl;
-        // }
-
-        // for (int i=0; i<num; ++i) std::cout << int(buffer[i]) << ',';
-        // std::cout << std::endl;
-
-        auto pkt = packet(num);
-        std::copy(buffer.begin(), buffer.begin() + num, pkt.begin());
-
         // TODO: check error code and return it if error
+        return num;
+    }
+
+    packet buffer2packet(int num, int offset=0){
+        auto pkt = packet(num);
+        std::copy(buffer.begin(), buffer.begin() + offset, pkt.begin());
         return pkt;
     }
 
-    void flush(){
+    // class Header {
+    //     uint8_t id;
+    //     uint8_t error;
+    // };
+    // class Moving : public Header {
+    //     bool moving;
+    // };
+    //
+    // typdef struct {
+    //     uint8_t id;
+    //     uint8_t error;
+    //     vector<uint8_t> params;
+    // } status_t;
+
+    status_t decode(){
+        status_t ret;
+        //memset(&ret, 0, sizeof(t));
+
+        // resp: [s,s,id,len,err, ... ,chksum]
+        for (int i = 0; i < buffer.size() - 2; ++i) {
+            if (buffer[i] == 0xff && buffer[i+1] == 0xff) {
+                ret.id = buffer[i+2];
+                ret.error = buffer[i+4];
+                for (int j=0; j < buffer[i+3]-2; ++j) ret.params.push_back(buffer[i+5+j]);
+                break;
+            }
+        }
+
+        return ret;
+        // auto pkt = packet(num);
+        // std::copy(buffer.begin(), buffer.begin() + num, pkt.begin());
+    }
+
+    // packet read(){
+    //     // buffer.clear();
+    //     buffer.fill(0);
+    //     // int num = available();
+    //     // if (num == 0) {
+    //     //     packet pkt;
+    //     //     return pkt;
+    //     // }
+    //     int num = available();
+    //     int cnt = 5;
+    //     while (num == 0){
+    //         msleep(20);
+    //         num = available();
+    //         if (cnt-- == 0){
+    //             fprintf(stderr,"FAIL");
+    //             packet empty;
+    //             return empty;
+    //         }
+    //     }
+    //
+    //     size_t remain = num;
+    //     while(remain > 0){
+    //         remain -= ::read(fd, buffer.data(), remain);
+    //     }
+    //
+    //     // int ret = 0;
+    //     // if (buffer[0] == 255 && buffer[1] == 255){
+    //     //     // if (buffer[4] == 0) cout << termcolor::green << "GOOD" << termcolor::reset << endl;
+    //     // }
+    //
+    //     // for (int i=0; i<num; ++i) std::cout << int(buffer[i]) << ',';
+    //     // std::cout << std::endl;
+    //
+    //     auto pkt = packet(num);
+    //     std::copy(buffer.begin(), buffer.begin() + num, pkt.begin());
+    //
+    //     // TODO: check error code and return it if error
+    //     return pkt;
+    // }
+
+    void flush_input(){
         tcflush(fd, TCIFLUSH);
+    }
+
+    void flush_output(){
+        tcflush(fd, TCOFLUSH);
+    }
+
+    void flush_all(){
+        tcflush(fd, TCIOFLUSH);
     }
 
     int available(){

@@ -52,14 +52,15 @@ target_include_directories(${PROJECT_NAME}
 #         ${Boost_LIBRARIES}
 # )
 
-# Executable -------------------------------------------------------
-add_executable(ax12-ex examples/ax12-ex.cpp)
-target_link_libraries(ax12-ex
-    PUBLIC
-        ${PROJECT_NAME}
-        # ${CMAKE_THREAD_LIBS_INIT}
-        # ${OTHER}
-)
+# Examples -------------------------------------------------------
+add_subdirectory(examples)
+# add_executable(ax12-ex examples/ax12-ex.cpp)
+# target_link_libraries(ax12-ex
+#     PUBLIC
+#         ${PROJECT_NAME}
+#         # ${CMAKE_THREAD_LIBS_INIT}
+#         # ${OTHER}
+# )
 # target_compile_definitions(main PRIVATE RPI=1)
 
 # Tests --------------------------------------------------------------

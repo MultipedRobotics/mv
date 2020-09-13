@@ -14,15 +14,15 @@
 
 using namespace std;
 
-void pprint(const packet& pkt){
-    cout << '[';
-    for (auto const& v: pkt) cout << int(v) << ",";
-    cout << ']' << endl;
-
-    printf("[");
-    for (auto const& v: pkt) printf("%02X,", v);
-    printf("]\n");
-}
+// void pprint(const packet& pkt){
+//     cout << '[';
+//     for (auto const& v: pkt) cout << int(v) << ",";
+//     cout << ']' << endl;
+//
+//     printf("[");
+//     for (auto const& v: pkt) printf("%02X,", v);
+//     printf("]\n");
+// }
 
 int main() {
 
@@ -31,18 +31,21 @@ int main() {
     // string port = "/dev/tty.usbserial-A904MISU";
     string port = "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A904MISU-if00-port0";
     serial.open(port);
+
+
+
     // serial.set_speed(1000000);
     // packet ping = servo.make_ping_packet(AX::BROADCAST_ID);
     // pprint(ping);
     // serial.write(ping);
 
-    vector<ServoMoveSpeed_t> ss {
-        {0, 16, 336}, // id:0 goal: 0x10 speed: 0x150
-        {1, 544, 864} // 1, 0x220, 0x360
-    };
-    packet mv = servo.make_sync_write_packet(ss);
-    pprint(mv);
-    serial.write(mv);
+    // vector<ServoMoveSpeed_t> ss {
+    //     {0, 16, 336}, // id:0 goal: 0x10 speed: 0x150
+    //     {1, 544, 864} // 1, 0x220, 0x360
+    // };
+    // packet mv = servo.make_sync_write_packet(ss);
+    // pprint(mv);
+    // serial.write(mv);
 
     // srand(time(0));
     // uint16_t count = rand() % 1023;
@@ -63,6 +66,12 @@ int main() {
     // cout << termcolor::green << "SUCCESS!" << termcolor::reset << endl;
     // cout << termcolor::color<213> << "color?" << termcolor::reset << endl;
     // cout << "color?" << endl;
+
+
+    packet mv = servo.make_move_packet(1, 512);
+    pprint(mv);
+    serial.write(mv);
+    msleep(500);
 
     return 0;
 }

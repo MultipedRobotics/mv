@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <mv/common.hpp>
 #include <string.h> // memset
+#include <termcolor/termcolor.hpp>
 
 /*
 Sync - write/read to all servos using the same registers/data (smaller)
@@ -123,8 +124,37 @@ typedef struct {
     bool instruction;   // 6
 } AxError;
 
+static void pprint(const packet& pkt, bool hex=false){
+    if ( hex ) std::cout << std::hex;
+
+    std::cout << '[';
+    // for (auto const& v: pkt) cout << int(v) << ",";
+    for (int i=0; i < pkt.size(); ++i){
+        int v = int(pkt[i]);
+        if (i == 0 || i == 1) std::cout << termcolor::yellow << v << termcolor::reset << ',';
+        else if (i == 2) std::cout << termcolor::blue << v << termcolor::reset << ',';
+        else if (i == 3) std::cout << termcolor::green << v << termcolor::reset << ',';
+        else if (i == 4) std::cout << termcolor::cyan << v << termcolor::reset << ',';
+        else if (i == 5) std::cout << termcolor::magenta << v << termcolor::reset << ',';
+        else if (i == pkt.size()-1) std::cout << termcolor::yellow << v << termcolor::reset << ',';
+        else std::cout << v << ',';
+    }
+    std::cout << ']' << std::endl;
+    if ( hex ) std::cout << std::dec;
+}
+
 // https://github.com/jumejume1/AX-12A-servo-library/blob/master/src/AX12A.cpp
 // https://github.com/mikeferguson/etherbotix/blob/ros2/include/etherbotix/dynamixel.hpp
+
+
+/**
+ * Packets structure:
+ *
+ * +----+----+--+------+-------+---------+
+ * |0xFF|0xFF|ID|LENGTH|DATA...|CHECK SUM|
+ * +----+----+--+------+-------+---------+
+ *
+ */
 class Protocol1 {
     uint8_t compute_checksum(packet& pkt){
         uint32_t checksum = 0;
@@ -137,7 +167,16 @@ public:
     Protocol1();
     ~Protocol1(){}
 
-    packet make_write_packet(uint8_t ID, uint8_t reg, uint16_t data){
+    packet make_write8_packet(uint8_t ID, uint8_t reg, uint8_t data){
+        const uint8_t len = 4;
+        uint8_t Checksum = (~(ID + len + AX::WRITE_DATA + reg + data)) & 0xFF;
+
+        packet pkt {AX::START,AX::START,ID,len,AX::WRITE_DATA,reg,data,Checksum};
+
+        return pkt;
+    }
+
+    packet make_write16_packet(uint8_t ID, uint8_t reg, uint16_t data){
         uint8_t hi = data >> 8;
         uint8_t lo = data & 0xff;
         const uint8_t len = 5;
@@ -161,8 +200,8 @@ public:
         return pkt;
     }
 
-    packet make_move_packet(uint8_t ID, int Position){
-        return make_write_packet(ID, AX::GOAL_POSITION, Position);
+    packet make_move_packet(uint8_t ID, uint16_t position){
+        return make_write16_packet(ID, AX::GOAL_POSITION, position);
     }
 
     packet make_read_position_packet(uint8_t ID){
@@ -189,25 +228,37 @@ public:
 
     packet make_moving_packet(uint8_t ID){
         auto pkt = packet(8);
-        uint8_t Checksum = (~(ID + AX::MOVING_LENGTH + AX::READ_DATA + AX::MOVING + AX::BYTE_READ)) & 0xFF;
+        const uint8_t len = 4;
+        uint8_t Checksum = (~(ID + len + AX::READ_DATA + AX::MOVING + AX::BYTE_READ)) & 0xFF;
 
         pkt[0] = AX::START;
         pkt[1] = AX::START;
         pkt[2] = ID;
-        pkt[3] = AX::MOVING_LENGTH;
+        pkt[3] = len;
         pkt[4] = AX::READ_DATA;
         pkt[5] = AX::MOVING;
         pkt[6] = AX::BYTE_READ;
         pkt[7] = Checksum;
 
+        // packet pkt {AX::START,AX::START,ID,len,AX::READ_DATA,AX::MOVING,AX::BYTE_READ,Checksum};
+
+        // printf("pkt\n");
+
         return pkt;
     }
 
     packet make_sync_write_packet(std::vector<ServoMove_t>& info){
-        uint8_t info_len = info.size()*5+2;
-        packet pkt {0xff, 0xff, AX::BROADCAST_ID, static_cast<uint8_t>(info_len+2),
-            AX::SYNC_WRITE, AX::GOAL_POSITION, 2};
-        pkt.reserve(3+info_len+3);
+        uint8_t info_len = info.size()*3+2;
+        uint8_t total_len = (2+1)*info.size()+4;
+        auto pkt = packet(7);
+        
+        pkt[0] = AX::START;
+        pkt[1] = AX::START;
+        pkt[2] = AX::BROADCAST_ID;
+        pkt[3] = static_cast<uint8_t>(info_len+2);
+        pkt[4] = AX::SYNC_WRITE;
+        pkt[5] = AX::GOAL_POSITION;
+        pkt[6] = 2;
 
         uint8_t hi, lo;
         for (auto const& s: info) {
