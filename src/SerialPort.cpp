@@ -100,7 +100,7 @@ void Serial::flush_output(){
     tcflush(fd, TCOFLUSH);
 }
 
-void Serial::flush_all(){
+void Serial::flush(){
     tcflush(fd, TCIOFLUSH);
 }
 

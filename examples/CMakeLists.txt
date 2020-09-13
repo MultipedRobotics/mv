@@ -4,6 +4,7 @@ list(APPEND ex
     path.cpp
     sync_write.cpp
     ping.cpp
+    misc.cpp
 )
 
 message(STATUS "Examples ----------------------")

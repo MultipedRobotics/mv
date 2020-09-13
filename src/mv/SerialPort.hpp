@@ -59,6 +59,6 @@ public:
     status_t decode();
     void flush_input();
     void flush_output();
-    void flush_all();
+    void flush();
     int available();
 };
