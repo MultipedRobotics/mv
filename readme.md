@@ -1,5 +1,7 @@
 # mv
 
+![Cpp](https://github.com/MultipedRobotics/mv/workflows/Cpp/badge.svg)
+
 **Under Heavey Development**
 
 Yet another Dynamexl library for smart servos. This is call `mv` after the
