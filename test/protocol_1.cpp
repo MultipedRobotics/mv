@@ -43,7 +43,7 @@ TEST(protocol_1, ping){
 
 TEST(protocol_1, write){
     AX12 servo;
-    packet pkt = servo.make_write8_packet(AX::BROADCAST_ID, AX::ID, 1);
+    packet pkt = servo.make_write8_packet(AX12::BROADCAST_ID, AX::ID, 1);
     packet ans {0xFF,0xFF,0xFE,0x04,0x03,0x03,0x01,0xF6};
     compare_packets(pkt, ans);
 

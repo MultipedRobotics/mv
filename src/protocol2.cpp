@@ -1,6 +1,10 @@
-#include "mv/protocol2.hpp"
+#include <mv/protocol2.hpp>
 
-uint16_t crc(uint16_t crc_accum, const packet& pkt){
+Protocol2::Protocol2(){}
+
+Protocol2::~Protocol2(){}
+
+uint16_t Protocol2::crc(uint16_t crc_accum, const packet& pkt){
     uint16_t csum = 0;
     static const uint16_t crc_table[256] = {0x0000,
     0x8005, 0x800F, 0x000A, 0x801B, 0x001E, 0x0014, 0x8011,

@@ -34,13 +34,9 @@ int main() {
         };
         packet mv = servo.make_sync_write_packet(ss);
         pprint(mv);
-        // serial.write(mv);
+        serial.write(mv);
 
-        int delay = 0;
-        if (v >= last) delay = int(1000.0*double(v-last)/1207.14);
-        else delay = int(1000.0*double(last-v)/1207.14);
-        // cout << ">> delay: " << delay << endl;
-        msleep(delay);
+        delay(v, last);
         last = v;
     }
 
