@@ -7,10 +7,7 @@
 #include <cstdlib> // rand, srand
 #include <time.h> // seed srand
 
-// #include "mv/ax12.hpp"
-#include "mv/protocol1.hpp"
-#include "mv/SerialPort.hpp"
-#include <termcolor/termcolor.hpp>
+#include <mv/mv.h>
 
 using namespace std;
 
@@ -32,7 +29,7 @@ int main() {
             {3, 100},
             {4, 100}
         };
-        packet mv = servo.make_sync_write_packet(ss);
+        packet mv = servo.make_sync_move_packet(ss);
         pprint(mv);
         serial.write(mv);
 

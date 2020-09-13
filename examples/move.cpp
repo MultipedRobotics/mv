@@ -7,10 +7,7 @@
 #include <cstdlib> // rand, srand
 #include <time.h> // seed srand
 
-// #include "mv/ax12.hpp"
-#include "mv/protocol1.hpp"
-#include "mv/SerialPort.hpp"
-#include <termcolor/termcolor.hpp>
+#include <mv/mv.h>
 
 using namespace std;
 

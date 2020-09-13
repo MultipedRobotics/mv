@@ -28,7 +28,7 @@ TEST(protocol_1, sync_move){
         {1, 544, 864} // 1, 0x220, 0x360
     };
 
-    packet pkt = servo.make_sync_write_packet(s);
+    packet pkt = servo.make_sync_move_speed_packet(s);
     packet ans {255,255,254,14,131,30,4,0,16,0,80,1,1,32,2,96,3,103};
 
     compare_packets(pkt, ans);

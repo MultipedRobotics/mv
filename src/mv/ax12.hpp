@@ -1,5 +1,149 @@
 #pragma once
 
+
+
+namespace AX {
+// EEPROM AREA  ///////////////////////////////////////////////////////////
+// constexpr uint8_t MODEL_NUMBER           =  0;
+// constexpr uint8_t VERSION                =  2;
+constexpr uint8_t ID                     =  3;
+// constexpr uint8_t BAUD_RATE              =  4;
+// constexpr uint8_t RETURN_DELAY_TIME      =  5;
+// constexpr uint8_t CW_ANGLE_LIMIT         =  6;
+// constexpr uint8_t CCW_ANGLE_LIMIT        =  8;
+// constexpr uint8_t SYSTEM_DATA2           =  10;
+// constexpr uint8_t LIMIT_TEMPERATURE      =  11;
+// constexpr uint8_t DOWN_LIMIT_VOLTAGE     =  12;
+// constexpr uint8_t UP_LIMIT_VOLTAGE       =  13;
+// constexpr uint8_t MAX_TORQUE             =  14;
+// constexpr uint8_t RETURN_LEVEL           =  16;
+// constexpr uint8_t ALARM_LED              =  17;
+// constexpr uint8_t ALARM_SHUTDOWN         =  18;
+// constexpr uint8_t OPERATING_MODE         =  19;
+// constexpr uint8_t DOWN_CALIBRATION       =  20;
+// constexpr uint8_t UP_CALIBRATION         =  22;
+
+// RAM AREA  //////////////////////////////////////////////////////////////
+constexpr uint8_t TORQUE_ENABLE           = 24;
+// constexpr uint8_t LED                    =  25;
+// constexpr uint8_t CW_COMPLIANCE_MARGIN   =  26;
+// constexpr uint8_t CCW_COMPLIANCE_MARGIN  =  27;
+// constexpr uint8_t CW_COMPLIANCE_SLOPE    =  28;
+// constexpr uint8_t CCW_COMPLIANCE_SLOPE   =  29;
+// namespace AX {
+// constexpr uint8_t GOAL_POSITION  =       30;
+// }
+constexpr uint8_t GOAL_POSITION          =  30;
+constexpr uint8_t GOAL_SPEED             =  32;
+// constexpr uint8_t TORQUE_LIMIT           =  34;
+constexpr uint8_t PRESENT_POSITION       =  36;
+// constexpr uint8_t PRESENT_SPEED          =  38;
+// constexpr uint8_t PRESENT_LOAD           =  40;
+constexpr uint8_t PRESENT_VOLTAGE        =  42;
+constexpr uint8_t PRESENT_TEMPERATURE    =  43;
+// constexpr uint8_t REGISTERED_INSTRUCTION =  44;
+// constexpr uint8_t PAUSE_TIME             =  45;
+constexpr uint8_t MOVING                 =  46;
+// constexpr uint8_t LOCK                   =  47;
+// constexpr uint8_t PUNCH                  =  48;
+// constexpr uint8_t PUNCH_H              =    49;
+
+// Status Return Levels ///////////////////////////////////////////////////////////////
+// constexpr uint8_t RETURN_NONE              0;
+// constexpr uint8_t RETURN_READ              1;
+// constexpr uint8_t RETURN_ALL               2;
+
+// Instruction Set ///////////////////////////////////////////////////////////////
+// constexpr uint8_t PING                  =   1;
+// constexpr uint8_t READ_DATA              =  2;
+// constexpr uint8_t WRITE_DATA             =  3;
+// constexpr uint8_t REG_WRITE              =  4;
+// constexpr uint8_t ACTION                 =  5;
+// constexpr uint8_t RESET                  =  6;
+// constexpr uint8_t REBOOT                 =  8;
+// constexpr uint8_t SYNC_WRITE             =  0x83;
+// constexpr uint8_t BULK_READ              =  0x92;
+
+// Specials ///////////////////////////////////////////////////////////////
+// #define OFF                         0;
+// #define ON                          1;
+// #define LEFT                        0;
+// #define RIGHT                       1;
+// constexpr uint8_t BYTE_READ             =   1;
+// constexpr uint8_t BYTE_READ_POS          =  2;
+// constexpr uint8_t RESET_LENGTH           =  2;
+// constexpr uint8_t ACTION_LENGTH          =  2;
+// constexpr uint8_t ID_LENGTH              =  4;
+// constexpr uint8_t LR_LENGTH              =  4;
+// constexpr uint8_t SRL_LENGTH             =  4;
+// constexpr uint8_t RDT_LENGTH             =  4;
+// constexpr uint8_t LEDALARM_LENGTH        =  4;
+// constexpr uint8_t SALARM_LENGTH          =  4;
+// constexpr uint8_t TL_LENGTH              =  4;
+// constexpr uint8_t VL_LENGTH              =  6;
+// constexpr uint8_t CM_LENGTH              =  6;
+// constexpr uint8_t CS_LENGTH              =  6;
+// constexpr uint8_t CCW_CW_LENGTH          =  8;
+// constexpr uint8_t BD_LENGTH              =  4;
+// constexpr uint8_t TEM_LENGTH             =  4;
+// constexpr uint8_t MOVING_LENGTH          =  4;
+// constexpr uint8_t RWS_LENGTH             =  4;
+// constexpr uint8_t VOLT_LENGTH            =  4;
+// constexpr uint8_t LED_LENGTH             =  4;
+// constexpr uint8_t TORQUE_LENGTH          =  4;
+// constexpr uint8_t POS_LENGTH             =  4;
+// constexpr uint8_t GOAL_LENGTH            =  5;
+// constexpr uint8_t MT_LENGTH              =  5;
+// constexpr uint8_t PUNCH_LENGTH           =  5;
+// constexpr uint8_t SPEED_LENGTH           =  5;
+// constexpr uint8_t GOAL_SP_LENGTH         =  7;
+// constexpr uint8_t ACTION_CHECKSUM        =  250;
+// constexpr uint8_t BROADCAST_ID           =  254;
+// constexpr uint8_t START                  =  255;
+// constexpr uint8_t CCW_AL                 =  255;
+// #define TIME_OUT                    10
+// #define LOCK                        1
+}
+
+class AX12: public Protocol1 {
+public:
+    AX12(){}
+
+    packet make_move_packet(uint8_t ID, uint16_t position){
+        return make_write16_packet(ID, AX::GOAL_POSITION, position);
+    }
+
+    packet make_torque_packet(uint8_t ID, bool enable){
+        const uint8_t t = enable ? 1 : 0;
+        return make_write8_packet(ID, AX::TORQUE_ENABLE, t);
+    }
+
+    packet make_sync_move_speed_packet(const std::vector<ServoMoveSpeed_t>& info){
+        return make_sync_write_packet(AX::GOAL_POSITION, info);
+    }
+
+    packet make_sync_move_packet(const std::vector<ServoMove_t>& info){
+        return make_sync_write_packet(AX::GOAL_POSITION, info);
+    }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // #include <common.hpp>
 // #include <protocol1.hpp>
 // #include <SerialPort.hpp>
