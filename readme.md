@@ -2,12 +2,15 @@
 
 ![Cpp](https://github.com/MultipedRobotics/mv/workflows/Cpp/badge.svg)
 
-**Under Heavey Development**
+**Under Heavey Development, only minimal AX12 working**
 
 Yet another Dynamexl library for smart servos. This is call `mv` after the
 unix move command.
 
-**Sort of a mess right now** :smile:
+## Issues
+
+**Only works on linux**, macOS serial port in C++ can't achieve 1000000 baud. I can
+do it in python, but not C++.
 
 ## Cool
 
@@ -17,30 +20,40 @@ unix move command.
 
 ```cpp
 #include <iostream>
-#include "ax12.hpp"
+#include <mv/mv.h>
 
-// typedef struct {
-//     byte id;
-//     double angle;
-//     double speed;
-// } ServoMove_t;
-//
-// typedef struct {
-//     byte id;
-// } ServoInfo_t;
-//
-// typedef vector<ServoInfo_t> PingResponse;
-// typedef vector<ServoMove_t> SyncMoveAngles;
+using namespace std;
 
-AX12 servo;
+int main() {
 
-packet ping = servo.make_ping(AX12::BROADCAST_ADDR);
-PingResponse ans = servo.send(ping);
+    AX12 servo;
+    Serial serial;
+    string port = "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A904MISU-if00-port0";
+    serial.open(port);
 
-for (auto const& s: ans) cout << s.id << endl;
+    packet t = servo.make_torque_packet(1, true);
+    serial.write(t);
 
-SyncMoveAngles d = {{1, 25, 0}, {2,-79, 0}};
+    vector<uint16_t> angles {0,233,765,457,986,234,511};
+    uint16_t last = 511;
 
-packet pkt = servo.make_sync_angle_packet(d)
-servo.send(pkt);
+    // by setting speed to zero, it just takes the current default
+    // and doesn't send uncessary data down the wire.
+    for (const auto& v: angles){
+        vector<ServoMoveSpeed_t> ss {
+            {1, v, 0},
+            {2, 100, 0},
+            {3, 100, 0},
+            {4, 100, 0}
+        };
+        packet mv = servo.make_sync_move_speed_packet(ss);
+        pprint(mv);
+        serial.write(mv);
+
+        AX::delay(v, last);
+        last = v;
+    }
+
+    return 0;
+}
 ```

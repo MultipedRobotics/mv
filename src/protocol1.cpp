@@ -67,24 +67,6 @@ packet Protocol1::make_write_packet(uint8_t ID, uint8_t reg, uint16_t data1, uin
     return pkt;
 }
 
-packet Protocol1::make_move_packet(uint8_t ID, uint16_t position){
-    return make_write16_packet(ID, AX::GOAL_POSITION, position);
-}
-
-packet Protocol1::make_torque_packet(uint8_t ID, bool enable){
-    const uint8_t t = enable ? 1 : 0;
-    return make_write8_packet(ID, AX::TORQUE_ENABLE, t);
-}
-
-packet Protocol1::make_read_position_packet(uint8_t ID){
-    const uint8_t len = 4;
-    const uint8_t Checksum = (~(ID + len + READ_DATA + AX::PRESENT_POSITION+ 2)) & 0xFF;
-
-    packet pkt {START,START,ID,len,READ_DATA,AX::PRESENT_POSITION,2,Checksum};
-
-    return pkt;
-}
-
 packet Protocol1::make_ping_packet(uint8_t ID){
     const uint8_t Checksum = (~(ID + READ_DATA + PING)) & 0xFF;
     packet pkt {START, START, ID, READ_DATA, PING, Checksum};
@@ -100,98 +82,70 @@ packet Protocol1::make_reset_packet(uint8_t ID){
     return pkt;
 }
 
-packet Protocol1::make_moving_packet(uint8_t ID){
-    auto pkt = packet(8);
-    const uint8_t len = 4;
-    const uint8_t Checksum = (~(ID + len + READ_DATA + AX::MOVING + 1)) & 0xFF;
-
-    pkt[0] = START;
-    pkt[1] = START;
-    pkt[2] = ID;
-    pkt[3] = len;
-    pkt[4] = READ_DATA;
-    pkt[5] = AX::MOVING;
-    pkt[6] = 1;
-    pkt[7] = Checksum;
-
-    // packet pkt {START,START,ID,len,READ_DATA,AX::MOVING,AX::BYTE_READ,Checksum};
-
-    // printf("pkt\n");
-
-    return pkt;
-}
-
-packet Protocol1::make_sync_write_packet(const std::vector<ServoMove_t>& info){
-    const uint8_t info_len = info.size()*3+2;
-    const uint8_t total_len = (2+1)*info.size()+4;
-    auto pkt = packet(7);
+// https://emanual.robotis.com/docs/en/dxl/protocol1/#sync-write
+// [s,s,id, ... payload ..., chksum] => payload_len + 4
+//    s: start character, 0xff for AX12
+// [payload_len, sync_instr, reg, reg_len ... params] => (reg_len+id)*servo_num + 4
+//   reg: servo register address
+//   reg_len: how many bytes to write starting at reg
+//   sync_instr: 0x83 for AX12
+packet Protocol1::make_sync_write_packet(const uint8_t reg, const std::vector<ServoMoveSpeed_t>& info){
+    const bool do_speed = info[0].speed == 0 ? false : true;
+    const uint8_t info_bytes = do_speed ? 5 : 3;
+    const uint8_t reg_len = do_speed ? 4 : 2;
+    const uint8_t payload_len = (reg_len+1)*info.size()+4;
+    // cout << "payload_len: " << int(payload_len) <<endl;
+    auto pkt = packet(payload_len+4);
 
     pkt[0] = START;
     pkt[1] = START;
     pkt[2] = BROADCAST_ID;
-    pkt[3] = static_cast<uint8_t>(info_len+2);
+    pkt[3] = static_cast<uint8_t>(payload_len);
     pkt[4] = SYNC_WRITE;
-    pkt[5] = AX::GOAL_POSITION;
-    pkt[6] = 2;
+    pkt[5] = reg;
+    pkt[6] = reg_len;
 
     uint8_t hi, lo;
+    int i = 7;
     for (auto const& s: info) {
-        pkt.push_back(s.id);
+        pkt[i++] = s.id;
         // angle
         hi = s.count >> 8;
         lo = s.count & 0xff;
-        pkt.push_back(lo);
-        pkt.push_back(hi);
-    }
-    uint8_t csum = compute_checksum(pkt);
-    pkt.push_back(csum);
-    return pkt;
-}
-
-packet Protocol1::make_sync_write_packet(const std::vector<ServoMoveSpeed_t>& info){
-    const uint8_t info_len = info.size()*5+2;
-    packet pkt {0xff, 0xff, BROADCAST_ID, static_cast<uint8_t>(info_len+2),
-        SYNC_WRITE, AX::GOAL_POSITION, 4};
-    pkt.reserve(3+info_len+3);
-
-    uint8_t hi, lo;
-    for (auto const& s: info) {
-        pkt.push_back(s.id);
-        // angle
-        hi = s.count >> 8;
-        lo = s.count & 0xff;
-        pkt.push_back(lo);
-        pkt.push_back(hi);
+        pkt[i++] = lo;
+        pkt[i++] = hi;
         // speed
-        hi = s.speed >> 8;
-        lo = s.speed & 0xff;
-        pkt.push_back(lo);
-        pkt.push_back(hi);
+        if (do_speed){
+            hi = s.speed >> 8;
+            lo = s.speed & 0xff;
+            pkt[i++] = lo;
+            pkt[i++] = hi;
+        }
     }
     uint8_t csum = compute_checksum(pkt);
-    pkt.push_back(csum);
+    pkt[i] = csum;
     return pkt;
 }
 
-packet Protocol1::make_sync_read_packet(uint8_t address, uint8_t length, const std::vector<uint8_t>& ids){
-    auto pkt = packet(8 + ids.size());
-    // uint8_t len = 0;
-    //
-    // pkt[len++] = 0xff;
-    // pkt[len++] = 0xff;
-    // pkt[len++] = BROADCAST_ID;
-    // pkt[len++] = 4 + ids.size();  // Length of remaining packet
-    // pkt[len++] = SYNC_READ;
-    // pkt[len++] = address;
-    // pkt[len++] = length;
-    // for (auto id : ids) pkt[len++] = id;
-    // pkt[len++] = compute_checksum(pkt); // not right?
-    return pkt;
-}
+// packet Protocol1::make_sync_read_packet(uint8_t address, uint8_t length, const std::vector<uint8_t>& ids){
+//     auto pkt = packet(8 + ids.size());
+//     // uint8_t len = 0;
+//     //
+//     // pkt[len++] = 0xff;
+//     // pkt[len++] = 0xff;
+//     // pkt[len++] = BROADCAST_ID;
+//     // pkt[len++] = 4 + ids.size();  // Length of remaining packet
+//     // pkt[len++] = SYNC_READ;
+//     // pkt[len++] = address;
+//     // pkt[len++] = length;
+//     // for (auto id : ids) pkt[len++] = id;
+//     // pkt[len++] = compute_checksum(pkt); // not right?
+//     return pkt;
+// }
 
-void Protocol1::decodePacket(const packet& data){
-
-}
+// void Protocol1::decodePacket(const packet& data){
+//
+// }
 
 uint8_t Protocol1::status_error(const packet& pkt){
     return pkt[4];

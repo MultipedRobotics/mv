@@ -7,10 +7,7 @@
 #include <cstdlib> // rand, srand
 #include <time.h> // seed srand
 
-// #include "mv/ax12.hpp"
-#include "mv/protocol1.hpp"
-#include "mv/SerialPort.hpp"
-#include <termcolor/termcolor.hpp>
+#include <mv/mv.h>
 
 using namespace std;
 
@@ -22,21 +19,24 @@ int main() {
     string port = "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A904MISU-if00-port0";
     serial.open(port);
 
+    packet t = servo.make_torque_packet(1, false);
+    serial.write(t);
+
     vector<uint16_t> angles {0,233,765,457,986,234,511};
     uint16_t last = 511;
 
     for (const auto& v: angles){
-        vector<ServoMove_t> ss {
-            {1, v},
-            {2, 100},
-            {3, 100},
-            {4, 100}
+        vector<ServoMoveSpeed_t> ss {
+            {1, v, 0},
+            {2, 100, 0},
+            {3, 100, 0},
+            {4, 100, 0}
         };
-        packet mv = servo.make_sync_write_packet(ss);
+        packet mv = servo.make_sync_move_speed_packet(ss);
         pprint(mv);
         serial.write(mv);
 
-        delay(v, last);
+        AX::delay(v, last);
         last = v;
     }
 

@@ -27,3 +27,4 @@ SOFTWARE.
 #include <mv/protocol1.hpp>
 #include <mv/protocol2.hpp>
 #include <mv/SerialPort.hpp>
+#include <mv/ax12.hpp>
