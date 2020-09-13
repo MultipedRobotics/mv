@@ -11,15 +11,15 @@
 #include <fcntl.h> // open
 #include <termcolor/termcolor.hpp>
 #include <mv/common.hpp> // structures
-#include <unistd.h> // sleep
+// #include <unistd.h> // sleep
 #include <termios.h> // serial
 
 constexpr bool DD_WRITE = false;  // false
 constexpr bool DD_READ = !DD_WRITE;
 
-static void msleep(unsigned int msec){
-    usleep(1000*msec);
-}
+// static void msleep(unsigned int msec){
+//     usleep(1000*msec);
+// }
 
 // class Header {
 //     uint8_t id;
@@ -28,6 +28,11 @@ static void msleep(unsigned int msec){
 // class Moving : public Header {
 //     bool moving;
 // };
+
+// macos is broken!!!
+#ifndef B1000000
+#define B1000000 0010010
+#endif
 
 typedef struct {
     uint8_t id;

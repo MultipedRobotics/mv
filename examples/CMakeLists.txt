@@ -1,8 +1,9 @@
 list(APPEND ex
-    ax12-ex.cpp
+    move.cpp
     feedback.cpp
     path.cpp
     sync_write.cpp
+    ping.cpp
 )
 
 message(STATUS "Examples ----------------------")

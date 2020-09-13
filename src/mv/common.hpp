@@ -1,9 +1,10 @@
 #pragma once
 
 
-#include <array>
+// #include <array>
 #include <vector>
 #include <stdint.h>
+#include <unistd.h> // sleep
 
 // typedef uint8_t byte;
 typedef std::vector<uint8_t> packet;
@@ -28,3 +29,17 @@ typedef struct {
 // typedef std::vector<ServoInfo_t> PingResponse;
 // typedef std::vector<ServoMove_t> SyncMoveAngles;
 // typedef std::vector<ServoMove_t> SyncMoveAngles;
+
+static void msleep(unsigned int msec){
+    usleep(1000*msec);
+}
+
+static void calc_delay(uint16_t current, uint16_t last){
+    // int delay = 0;
+    // delay = abs(3-4);
+    // if (current >= last) delay = int(1000.0*double(current-last)/1207.14);
+    // else delay = int(1000.0*double(last-current)/1207.14);
+    // // cout << ">> delay: " << delay << endl;
+    // msleep(delay);
+    msleep(int(1000.0*double(abs(current-last))/1207.14));
+}
