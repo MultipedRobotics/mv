@@ -3,3 +3,5 @@ old
 .DS_Store
 *.pyc
 ._*
+.ipynb_checkpoints
+

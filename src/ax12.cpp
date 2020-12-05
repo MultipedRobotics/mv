@@ -17,6 +17,14 @@ packet AX12::make_torque_packet(uint8_t ID, bool enable){
     return make_write8_packet(ID, AX::TORQUE_ENABLE, t);
 }
 
+/*
+move (angle): 0-1023 counts (0-300 deg)
+speed: 0-1023 counts, in increments of 0.111rpm, default is 0 (motor moves at max speed)
+*/
 packet AX12::make_sync_move_speed_packet(const std::vector<ServoMoveSpeed_t>& info){
     return make_sync_write_packet(AX::GOAL_POSITION, info);
+}
+
+packet AX12::read_goal_speed_packet(uint8_t ID){
+    return make_read_packet(ID, AX::GOAL_SPEED, 2);
 }

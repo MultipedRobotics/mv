@@ -59,10 +59,12 @@ public:
     Protocol1();
     ~Protocol1();
 
-    // low level
+    // low level write
     packet make_write8_packet(uint8_t ID, uint8_t reg, uint8_t data);
     packet make_write16_packet(uint8_t ID, uint8_t reg, uint16_t data);
     packet make_write_packet(uint8_t ID, uint8_t reg, uint16_t data1, uint16_t data2);
+    // low level read
+    packet make_read_packet(uint8_t ID, uint8_t reg, uint8_t read_len);
     // single servo
     packet make_ping_packet(uint8_t ID=BROADCAST_ID);
     packet make_reset_packet(uint8_t ID);
@@ -85,4 +87,6 @@ public:
     static const uint8_t REBOOT       = 8;
     static const uint8_t SYNC_WRITE   = 0x83;
     static const uint8_t BULK_READ    = 0x92;
+    static const uint8_t READ8        = 1;
+    static const uint8_t READ16       = 2;
 };

@@ -5,6 +5,7 @@ list(APPEND ex
     sync_write.cpp
     ping.cpp
     misc.cpp
+    read.cpp
 )
 
 message(STATUS "Examples ----------------------")

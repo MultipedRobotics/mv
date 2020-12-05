@@ -17,10 +17,10 @@ using namespace std;
 int main() {
 
     AX12 servo;
-    // Serial serial;
+    Serial serial;
     // // string port = "/dev/tty.usbserial-A904MISU";
-    // string port = "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A904MISU-if00-port0";
-    // serial.open(port);
+    string port = "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A904MISU-if00-port0";
+    serial.open(port);
 
     // vector<uint16_t> steps {0,511};
     //
@@ -91,43 +91,55 @@ int main() {
     //     {4, 400}
     // };
 
-    vector<ServoMoveSpeed_t> ss {
-        {1, 100,0},
-        {2, 200,0},
-        {3, 300,0},
-        {4, 400,0}
-    };
+    // vector<ServoMoveSpeed_t> ss {
+    //     {1, 100,0},
+    //     {2, 200,0},
+    //     {3, 300,0},
+    //     {4, 400,0}
+    // };
+    //
+    // vector<ServoMoveSpeed_t> sss {
+    //     {1, 100,300},
+    //     {2, 200,300},
+    //     {3, 300,300},
+    //     {4, 400,300}
+    // };
+    //
+    // // packet mv = servo.make_sync_move_packet(s);
+    // // pprint(mv);
+    //
+    // packet mv2 = servo.make_sync_move_speed_packet(ss);
+    // pprint(mv2);
+    //
+    // cout << "-------------------------------"<< endl;
+    //
+    // // packet mv3 = servo.make_sync_move_speed_packet(sss);
+    // // pprint(mv3);
+    //
+    // packet mv4 = servo.make_sync_move_speed_packet(sss);
+    // pprint(mv4);
 
-    vector<ServoMoveSpeed_t> sss {
-        {1, 100,300},
-        {2, 200,300},
-        {3, 300,300},
-        {4, 400,300}
-    };
+    if (1) {
+        srand(time(0));
+        packet mv = servo.make_move_packet(1, rand()%1023);
+        serial.write(mv);
+        msleep(500);
+    }
+    // Protocol1 pc;
+    // packet p = pc.make_read_packet(1, 32, 2);
+    // pprint(p);
+    // return 0;
 
-    // packet mv = servo.make_sync_move_packet(s);
-    // pprint(mv);
-
-    packet mv2 = servo.make_sync_move_speed_packet(ss);
-    pprint(mv2);
-
-    cout << "-------------------------------"<< endl;
-
-    // packet mv3 = servo.make_sync_move_speed_packet(sss);
-    // pprint(mv3);
-
-    packet mv4 = servo.make_sync_move_speed_packet(sss);
-    pprint(mv4);
-
-
-
-    // const ax12_reg_t bob;
-    // bob.bob = 35;
-    // bob.tom = 25;
-
-    // cout << bob.bob << endl;
-    // cout << &bob << endl;
-    // cout << sizeof(bob) << endl;
+    // packet pkt = servo.read_goal_speed_packet(1);
+    packet pkt = servo.make_ping_packet(1);
+    pprint(pkt);
+    int num = serial.write(pkt);
+    cout << ">> sent: " << num << endl;
+    msleep(500);
+    int ret = serial.read();
+    printf(">> read: %d\n", ret);
+    packet ans = serial.buffer2packet(ret);
+    // pprint(ans);
 
     return 0;
 }

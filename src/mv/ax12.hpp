@@ -64,4 +64,5 @@ public:
     packet make_move_packet(uint8_t ID, uint16_t position);
     packet make_torque_packet(uint8_t ID, bool enable);
     packet make_sync_move_speed_packet(const std::vector<ServoMoveSpeed_t>& info);
+    packet read_goal_speed_packet(uint8_t ID);
 };

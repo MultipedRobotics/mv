@@ -27,9 +27,9 @@ SOFTWARE.
 #include <vector>
 #include <array> // buffer
 #include <mv/common.hpp> // structures
-
-constexpr bool DD_WRITE = false;  // false
-constexpr bool DD_READ = !DD_WRITE;
+// 
+// constexpr bool DD_WRITE = false;  // false
+// constexpr bool DD_READ = !DD_WRITE;
 
 // macos is broken!!!
 #ifndef B1000000
@@ -44,6 +44,7 @@ typedef struct {
 
 class Serial {
     int fd;
+    int dir_pin;
     std::array<std::uint8_t, 512> buffer;
     void set_dir(bool enabled);
 
@@ -51,7 +52,7 @@ public:
     Serial();
     ~Serial();
 
-    bool open(const std::string& port);
+    bool open(const std::string& port, int speed=B1000000);
     void close();
     int write(const packet& pkt);
     int read();

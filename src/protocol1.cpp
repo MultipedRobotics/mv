@@ -23,6 +23,8 @@ void pprint(const packet& pkt, bool hex){
     if ( hex ) std::cout << std::dec;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 Protocol1::Protocol1(){}
 
 Protocol1::~Protocol1(){}
@@ -63,6 +65,25 @@ packet Protocol1::make_write_packet(uint8_t ID, uint8_t reg, uint16_t data1, uin
     const uint8_t Checksum = (~(ID + len + WRITE_DATA + reg + lo1 + hi1 + lo2+hi2)) & 0xFF;
 
     packet pkt {START,START,ID,len,WRITE_DATA,reg,lo1,hi1,lo2,hi2,Checksum};
+
+    return pkt;
+}
+
+packet Protocol1::make_read_packet(uint8_t ID, uint8_t reg, uint8_t read_len){
+    const uint8_t len = 8;
+    // unsigned char packet[length];
+    auto pkt = packet(len);
+
+    uint8_t Checksum = (~(ID + 4 + READ_DATA + reg + read_len)) & 0xFF;
+
+    pkt[0] = START;
+    pkt[1] = START;
+    pkt[2] = ID;
+    pkt[3] = 4;             // 1 length
+    pkt[4] = READ_DATA;     // 2
+    pkt[5] = reg;           // 3
+    pkt[6] = read_len;      // 4
+    pkt[7] = Checksum;
 
     return pkt;
 }

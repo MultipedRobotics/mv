@@ -37,6 +37,6 @@ typedef struct {
     uint16_t speed;
 } ServoMoveSpeed_t;
 
-static void msleep(unsigned int msec){
+inline void msleep(unsigned int msec){
     usleep(1000*msec);
 }
