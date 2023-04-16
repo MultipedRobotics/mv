@@ -37,6 +37,8 @@ typedef struct {
     uint16_t speed;
 } ServoMoveSpeed_t;
 
-inline void msleep(unsigned int msec){
-    usleep(1000*msec);
-}
+#if defined(ARDUINO)
+  #include<Arduino.h>
+#else
+  inline void delay(unsigned int msec) { usleep(1000*msec); }
+#endif
