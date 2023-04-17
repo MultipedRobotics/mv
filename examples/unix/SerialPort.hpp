@@ -21,24 +21,46 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ******************************************************************************/
-
 #pragma once
 
-
+#include <string>
 #include <vector>
-#include <stdint.h>
-#include <unistd.h> // usleep
+#include <array> // buffer
+#include "mv.h"
+// #include <mv/common.hpp> // structures
+//
+// constexpr bool DD_WRITE = false;  // false
+// constexpr bool DD_READ = !DD_WRITE;
 
-typedef std::vector<uint8_t> packet;
+// macos is broken!!!
+#ifndef B1000000
+#define B1000000 0010010
+#endif
 
 typedef struct {
     uint8_t id;
-    uint16_t count;
-    uint16_t speed;
-} ServoMoveSpeed_t;
+    uint8_t error;
+    std::vector<uint8_t> params;
+} status_t;
 
-#if defined(ARDUINO)
-  #include<Arduino.h>
-#else
-  inline void delay(unsigned int msec) { usleep(1000*msec); }
-#endif
+class Serial {
+    int fd;
+    int dir_pin;
+    std::array<std::uint8_t, 512> buffer;
+    void set_dir(bool enabled);
+
+public:
+    Serial();
+    ~Serial();
+
+    bool open(const std::string& port, int speed=B1000000);
+    void close();
+    int write(const packet& pkt);
+    int read();
+    packet buffer2packet(int num, int offset=0);
+    status_t decode();
+    void flush_input();
+    void flush_output();
+    void flush();
+    int available();
+};

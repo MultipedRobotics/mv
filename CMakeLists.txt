@@ -47,46 +47,15 @@ endif()
 # Threads ---------------------------------------------------------
 # find_package(Threads REQUIRED)
 
-# Pi ---------------------------------------------------------------
-# Need to figure out if we need to link against pigpio or not
-# if (PI)
-#     set(OTHER "pigpio rt")
-# else ()
-#     set(OTHER "")
-# endif (PI)
-
-# Build AX-12 library ----------------------------------------------
-set(LIB
-    src/unix/SerialPort.cpp
-    src/protocol1.cpp
-    src/protocol2.cpp
-    src/ax12.cpp
-)
-add_library(${PROJECT_NAME} ${LIB})
-target_include_directories(${PROJECT_NAME}
-    PUBLIC
-        src/
-        # ${Boost_INCLUDE_DIRS}
-)
-# target_link_libraries(${PROJECT_NAME}
-#     PUBLIC
-#         # ${Boost_SYSTEM_LIBRARY}
-#         ${Boost_LIBRARIES}
-# )
+add_library(${PROJECT_NAME} INTERFACE)
+target_include_directories(${PROJECT_NAME} INTERFACE src)
 
 # Examples -------------------------------------------------------
-add_subdirectory(examples)
-# add_executable(ax12-ex examples/ax12-ex.cpp)
-# target_link_libraries(ax12-ex
-#     PUBLIC
-#         ${PROJECT_NAME}
-#         # ${CMAKE_THREAD_LIBS_INIT}
-#         # ${OTHER}
-# )
-# target_compile_definitions(main PRIVATE RPI=1)
+if(${BUILD_EXAMPLES})
+    # add_subdirectory(examples/unix)
+endif()
 
 # Tests --------------------------------------------------------------
-option(TESTS "gecko google tests" ON)
-if(${TESTS})
+if(${BUILD_GTESTS})
     add_subdirectory(test)
 endif()
