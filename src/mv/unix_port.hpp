@@ -42,16 +42,18 @@ constexpr bool DD_READ = !DD_WRITE;
 
 class SerialPort {
   int fd;
-  int dd_pin;
-  std::array<std::uint8_t, 512> buffer;
-  void set_dir(bool enabled);
+  // std::array<std::uint8_t, 512> buffer;
+  void set_dir(bool enabled) {
+    int dd_pin = TIOCM_DTR;
+    int value = enabled ? TIOCMBIS : TIOCMBIC;
+    ioctl(fd, value, &dd_pin);
+}
 
 public:
   SerialPort() {}
   ~SerialPort() {}
 
-  void begin(const std::string& port, int dir_pin) {
-    dd_pin = dir_pin;
+  void begin(const std::string& port) {
     int speed=B1000000;
     struct termios t;
 
@@ -82,8 +84,8 @@ public:
     set_dir(DD_WRITE);
   }
 
-  bool open(const std::string& port, int speed=B1000000);
-  void close();
+  // bool open(const std::string& port, int speed=B1000000);
+  // void close();
   int write(const packet& pkt) {
     set_dir(DD_WRITE);
     // int num = 0;
