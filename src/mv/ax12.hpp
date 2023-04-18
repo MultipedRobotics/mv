@@ -75,10 +75,10 @@ public:
     return make_write16_packet(ID, AX::GOAL_POSITION, position);
   }
 
-  // packet make_torque_packet(uint8_t ID, bool enable){
-  //   const uint8_t t = enable ? 1 : 0;
-  //   return make_write8_packet(ID, AX::TORQUE_ENABLE, t);
-  // }
+  packet make_torque_packet(uint8_t ID, bool enable){
+    const uint8_t t = enable ? 1 : 0;
+    return make_write8_packet(ID, AX::TORQUE_ENABLE, t);
+  }
 
   // packet read_goal_speed_packet(uint8_t ID){
   //   return make_read_packet(ID, AX::GOAL_SPEED, 2);

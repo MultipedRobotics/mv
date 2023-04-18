@@ -14,11 +14,11 @@ using namespace std;
 int main() {
 
   AX12 servo;
-  Serial serial;
+  SerialPort serial;
   // string port = "/dev/tty.usbserial-A904MISU";
   string port =
       "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A904MISU-if00-port0";
-  serial.open(port);
+  serial.begin(port);
 
   packet t = servo.make_torque_packet(1, false);
   serial.write(t);
@@ -30,10 +30,10 @@ int main() {
     vector<ServoMoveSpeed_t> ss{
         {1, v, 0}, {2, 100, 0}, {3, 100, 0}, {4, 100, 0}};
     packet mv = servo.make_sync_move_speed_packet(ss);
-    pprint(mv);
+    // pprint(mv);
     serial.write(mv);
 
-    AX::delay(v, last);
+    // AX::delay(v, last);
     last = v;
   }
 

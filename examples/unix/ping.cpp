@@ -14,20 +14,20 @@ using namespace std;
 int main() {
 
   AX12 servo;
-  Serial serial;
+  SerialPort serial;
   // string port = "/dev/tty.usbserial-A904MISU";
   string port =
       "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A904MISU-if00-port0";
-  serial.open(port);
+  serial.begin(port);
 
   packet ping = servo.make_ping_packet();
-  pprint(ping);
+  // pprint(ping);
   serial.write(ping);
 
   int num  = serial.read();
-  packet p = serial.buffer2packet(num);
-  pprint(p);
-  printf(">> Error %u\n", servo.status_error(p));
+  // packet p = serial.buffer2packet(num);
+  // pprint(p);
+  // printf(">> Error %u\n", servo.status_error(p));
 
   return 0;
 }

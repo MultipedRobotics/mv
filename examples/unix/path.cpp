@@ -14,11 +14,11 @@ using namespace std;
 int main() {
 
   AX12 servo;
-  Serial serial;
+  SerialPort serial;
   // string port = "/dev/tty.usbserial-A904MISU";
   string port =
       "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A904MISU-if00-port0";
-  serial.open(port);
+  serial.begin(port);
 
   // vector<uint16_t> path {511, 0, 1023, 0, 1023, 0, 1023, 511};
   vector<uint16_t> path{511, 34, 100, 300, 564, 758, 1000,
@@ -38,10 +38,10 @@ int main() {
     354 --- * --------- = 1207.14 cnts/sec
         sec    300 deg
     */
-    int delay = 0;
-    if (p >= last) delay = int(1000.0 * (p - last) / 1207.14);
-    else delay = int(1000.0 * (last - p) / 1207.14);
-    msleep(delay);
+    int d = 0;
+    if (p >= last) d = int(1000.0 * (p - last) / 1207.14);
+    else d = int(1000.0 * (last - p) / 1207.14);
+    delay(d);
     last = p;
   }
 

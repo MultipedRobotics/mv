@@ -14,13 +14,13 @@ using namespace std;
 int main() {
 
   AX12 servo;
-  Serial serial;
+  SerialPort serial;
   // string port = "/dev/tty.usbserial-A904MISU";
   string port =
       "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A904MISU-if00-port0";
-  serial.open(port);
+  serial.begin(port);
 
-  int delay = int(1000.0 * 50.0 / 1207.14);
+  // int delay = int(1000.0 * 50.0 / 1207.14);
 
   /////////////////////////////////
   //  This sucks!!!!!!!!!!!!
@@ -65,7 +65,7 @@ int main() {
 
   packet mv = servo.make_move_packet(1, 512);
   serial.write(mv);
-  msleep(500);
+  delay(500);
 
   return 0;
 }

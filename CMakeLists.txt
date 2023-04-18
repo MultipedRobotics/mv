@@ -52,7 +52,7 @@ target_include_directories(${PROJECT_NAME} INTERFACE src)
 
 # Examples -------------------------------------------------------
 if(${BUILD_EXAMPLES})
-    # add_subdirectory(examples/unix)
+    add_subdirectory(examples/unix)
 endif()
 
 # Tests --------------------------------------------------------------

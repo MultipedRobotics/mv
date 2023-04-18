@@ -40,6 +40,29 @@ constexpr bool DD_READ = !DD_WRITE;
 #endif
 
 
+// #include "unix_termcolor.hpp"
+//
+// static void pprint(const packet& pkt, bool hex){
+//     if ( hex ) std::cout << std::hex;
+
+//     std::cout << '[';
+//     // for (auto const& v: pkt) cout << int(v) << ",";
+//     for (int i=0; i < pkt.size(); ++i){
+//         int v = int(pkt[i]);
+//         if (i == 0 || i == 1) std::cout << termcolor::yellow << v <<
+//         termcolor::reset << ','; else if (i == 2) std::cout <<
+//         termcolor::blue << v << termcolor::reset << ','; else if (i == 3)
+//         std::cout << termcolor::green << v << termcolor::reset << ','; else
+//         if (i == 4) std::cout << termcolor::cyan << v << termcolor::reset <<
+//         ','; else if (i == 5) std::cout << termcolor::magenta << v <<
+//         termcolor::reset << ','; else if (i == pkt.size()-1) std::cout <<
+//         termcolor::yellow << v << termcolor::reset << ','; else std::cout <<
+//         v << ',';
+//     }
+//     std::cout << ']' << std::endl;
+//     if ( hex ) std::cout << std::dec;
+// }
+
 class SerialPort {
   int fd;
   // std::array<std::uint8_t, 512> buffer;
