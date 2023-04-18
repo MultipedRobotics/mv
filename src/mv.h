@@ -41,6 +41,7 @@ struct ServoMoveSpeed_t {
 #else
   #include <unistd.h> // usleep
   inline void delay(unsigned int msec) { usleep(1000 * msec); }
+  #include <mv/unix_port.hpp>
 #endif
 
 #include <mv/ax12.hpp>
