@@ -51,9 +51,9 @@ add_library(${PROJECT_NAME} INTERFACE)
 target_include_directories(${PROJECT_NAME} INTERFACE src)
 
 # Examples -------------------------------------------------------
-if(${BUILD_EXAMPLES})
-    add_subdirectory(examples/unix)
-endif()
+# if(${BUILD_EXAMPLES})
+#     add_subdirectory(examples/unix)
+# endif()
 
 # Tests --------------------------------------------------------------
 if(${BUILD_GTESTS})

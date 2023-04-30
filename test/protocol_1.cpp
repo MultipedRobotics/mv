@@ -3,8 +3,9 @@
 #include <vector>
 
 using namespace std;
+using namespace Protocol1;
 
-void compare_packets(const packet &a, const packet &b) {
+void compare_packets(const Packet_t &a, const Packet_t &b) {
   EXPECT_TRUE(a.size() == b.size());
   for (int i = 0; i < a.size(); ++i)
     EXPECT_TRUE(a[i] == b[i]);
@@ -14,26 +15,26 @@ void compare_packets(const packet &a, const packet &b) {
 TEST(ax12, move) {
   AX12 servo;
 
-  packet pkt = servo.make_move_packet(1, 511);
-  packet ans{255, 255, 1, 5, 3, 30, 255, 1, 216};
+  Packet_t pkt = servo.makeMovePacket(1, 511);
+  Packet_t ans{255, 255, 1, 5, 3, 30, 255, 1, 216};
 
   compare_packets(pkt, ans);
 }
 
-TEST(ax12, sync_move) {
+TEST(ax12, syncMove) {
   AX12 servo;
 
   vector<ServoMoveSpeed_t> s{
       {1, 100, 0}, {2, 200, 0}, {3, 300, 0}, {4, 400, 0}};
 
-  packet pkt = servo.make_sync_move_speed_packet(s);
-  packet ans{255, 255, 254, 16, 131, 30, 2, 1,   100, 0,
+  Packet_t pkt = servo.makeMovePacket(s);
+  Packet_t ans{255, 255, 254, 16, 131, 30, 2, 1,   100, 0,
              2,   200, 0,   3,  44,  1,  4, 144, 1,   90};
 
   compare_packets(pkt, ans);
 }
 
-TEST(ax12, sync_move_speed) {
+TEST(ax12, syncMoveSpeed) {
   AX12 servo;
 
   vector<ServoMoveSpeed_t> s{
@@ -41,8 +42,8 @@ TEST(ax12, sync_move_speed) {
       {1, 544, 864} // 1, 0x220, 0x360
   };
 
-  packet pkt = servo.make_sync_move_speed_packet(s);
-  packet ans{255, 255, 254, 14, 131, 30, 4,  0, 16,
+  Packet_t pkt = servo.makeMovePacket(s);
+  Packet_t ans{255, 255, 254, 14, 131, 30, 4,  0, 16,
              0,   80,  1,   1,  32,  2,  96, 3, 103};
 
   compare_packets(pkt, ans);
@@ -50,22 +51,22 @@ TEST(ax12, sync_move_speed) {
 
 TEST(ax12, ping) {
   AX12 servo;
-  packet pkt = servo.make_ping_packet(1);
-  packet ans{0xFF, 0xFF, 0x01, 0x02, 0x01, 0xFB};
+  Packet_t pkt = servo.makePingPacket(1);
+  Packet_t ans{0xFF, 0xFF, 0x01, 0x02, 0x01, 0xFB};
   compare_packets(pkt, ans);
 }
 
 TEST(ax12, write) {
   AX12 servo;
-  packet pkt = servo.make_write8_packet(AX12::BROADCAST_ID, AX::ID, 1);
-  packet ans{0xFF, 0xFF, 0xFE, 0x04, 0x03, 0x03, 0x01, 0xF6};
+  Packet_t pkt = servo.makeWritePacket(0XFE, AX::ID_REG, (uint8_t)1);
+  Packet_t ans{0xFF, 0xFF, 0xFE, 0x04, 0x03, 0x03, 0x01, 0xF6};
   compare_packets(pkt, ans);
 
-  packet pkt2 = servo.make_write16_packet(1, AX::GOAL_POSITION, 511);
-  packet ans2{255, 255, 1, 5, 3, 30, 255, 1, 216};
+  Packet_t pkt2 = servo.makeWritePacket(1, AX::GOAL_POSITION_REG, (uint16_t)511);
+  Packet_t ans2{255, 255, 1, 5, 3, 30, 255, 1, 216};
   compare_packets(pkt2, ans2);
 
-  packet pkt3 = servo.make_write_packet(1, AX::GOAL_POSITION, 512, 300);
-  packet ans3{0xff, 0xff, 0x01, 0x07, 0x03, 0x1e, 0x00, 0x02, 0x2c, 0x01, 0xa7};
+  Packet_t pkt3 = servo.makeWritePacket(1, AX::GOAL_POSITION_REG, 512, 300);
+  Packet_t ans3{0xff, 0xff, 0x01, 0x07, 0x03, 0x1e, 0x00, 0x02, 0x2c, 0x01, 0xa7};
   compare_packets(pkt3, ans3);
 }

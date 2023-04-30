@@ -118,7 +118,7 @@ int main() {
 
   if (1) {
     srand(time(0));
-    packet mv = servo.make_move_packet(1, rand() % 1023);
+    packet mv = servo.makeMovePacket(1, rand() % 1023);
     serial.write(mv);
     delay(500);
   }
@@ -128,7 +128,7 @@ int main() {
   // return 0;
 
   // packet pkt = servo.read_goal_speed_packet(1);
-  packet pkt = servo.make_ping_packet(1);
+  packet pkt = servo.makePingPacket(1);
   // pprint(pkt);
   int num = serial.write(pkt);
   cout << ">> sent: " << num << endl;

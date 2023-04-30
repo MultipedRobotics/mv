@@ -20,11 +20,11 @@ int main() {
       "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A904MISU-if00-port0";
   serial.begin(port);
 
-  packet ping = servo.make_ping_packet();
+  packet ping = servo.makePingPacket();
   // pprint(ping);
   serial.write(ping);
 
-  int num  = serial.read();
+  int num = serial.read();
   // packet p = serial.buffer2packet(num);
   // pprint(p);
   // printf(">> Error %u\n", servo.status_error(p));

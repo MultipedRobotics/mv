@@ -23,24 +23,38 @@ SOFTWARE.
 ******************************************************************************/
 #pragma once
 
-
 #include <stdint.h>
 #include <vector>
 
-typedef std::vector<uint8_t> packet;
+typedef std::vector<uint8_t> Packet_t;
+typedef std::vector<Packet_t> PktArray_t;
 
 struct ServoMoveSpeed_t {
   uint8_t id;
-  uint16_t count;
+  uint16_t count; // 0-300 deg or 0x0000-0x1023 counts
   uint16_t speed;
 };
+
+typedef std::vector<ServoMoveSpeed_t> SyncVec_t;
+
+struct ReadStatus_t {
+  bool ok;
+  PktArray_t pkts;
+};
+
+union {
+  struct {
+    uint8_t hi, lo;
+  };
+  uint16_t u16;
+} Memory_t;
 
 #if defined(ARDUINO)
   #include <Arduino.h>
   #include <mv/arduino_port.hpp>
 #else
   #include <unistd.h> // usleep
-  inline void delay(unsigned int msec) { usleep(1000 * msec); }
+inline void delay(unsigned int msec) { usleep(1000 * msec); }
   #include <mv/unix_port.hpp>
 #endif
 

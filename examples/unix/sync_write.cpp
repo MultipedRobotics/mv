@@ -29,7 +29,7 @@ int main() {
   for (const auto &v : angles) {
     vector<ServoMoveSpeed_t> ss{
         {1, v, 0}, {2, 100, 0}, {3, 100, 0}, {4, 100, 0}};
-    packet mv = servo.make_sync_move_speed_packet(ss);
+    packet mv = servo.makeSyncMoveSpeedPacket(ss);
     // pprint(mv);
     serial.write(mv);
 

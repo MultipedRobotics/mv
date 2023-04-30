@@ -7,54 +7,68 @@
 Yet another Dynamexl library for smart servos. This is call `mv` after the
 unix move command.
 
-## Issues
-
-**Only works on linux**, macOS serial port in C++ can't achieve 1000000 baud. I can
-do it in python, but not C++.
-
 ## Cool
 
 - [termcolor](https://github.com/ikalnytskyi/termcolor)
 
-## Examples
+## Arduino Example
 
 ```cpp
-#include <iostream>
-#include <mv/mv.h>
+#include <mv.h>
+#include <vector>
 
-using namespace std;
+AX12 servo;
+std::vector<uint16_t> angles {0,200,400,600,800,1000};
+SerialPort sp;
+uint16_t angle;
+constexpr int dd_pin = 2;
 
-int main() {
+void setup() {
+  Serial.begin(1000000);
+  Serial1.begin(1000000);
+  Serial1.setTimeout(10);
 
-    AX12 servo;
-    Serial serial;
-    string port = "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A904MISU-if00-port0";
-    serial.open(port);
+  sp.begin(&Serial1, dd_pin);
 
-    packet t = servo.make_torque_packet(1, true);
-    serial.write(t);
+  randomSeed(analogRead(0));
+  angle = random(0,1023);
+}
 
-    vector<uint16_t> angles {0,233,765,457,986,234,511};
-    uint16_t last = 511;
+void get_response() {
+  ReadStatus_t rs = sp.read();
+  if (rs.ok) {
+    for (Packet_t const &p: rs.pkts) {
+      for (uint8_t const &b: p) {
+        Serial.print((int) b);
+        Serial.print(",");
+      }
+      Serial.println(" ");
+    }
+  }
+}
 
-    // by setting speed to zero, it just takes the current default
-    // and doesn't send uncessary data down the wire.
+void loop() {
+
     for (const auto& v: angles){
-        vector<ServoMoveSpeed_t> ss {
+        std::vector<ServoMoveSpeed_t> ss {
             {1, v, 0},
-            {2, 100, 0},
-            {3, 100, 0},
-            {4, 100, 0}
+            {2, v, 0},
+            {3, v, 0}
         };
-        packet mv = servo.make_sync_move_speed_packet(ss);
-        pprint(mv);
-        serial.write(mv);
+        Packet_t mv = servo.makeMovePacket(ss);
 
-        AX::delay(v, last);
-        last = v;
+        sp.write(mv);
+        get_response();
+
+        delay(1000);
     }
 
-    return 0;
+    Packet_t ping = servo.makePingPacket();
+    sp.write(ping);
+    delay(100);
+    get_response();
+
+    delay(500);
 }
 ```
 
@@ -62,6 +76,13 @@ int main() {
 
 - [AX-12 e-manual](https://emanual.robotis.com/docs/en/dxl/ax/ax-12a/)
 - [Protocol 1 e-manual](https://emanual.robotis.com/docs/en/dxl/protocol1/)
+
+## Todo
+
+- [x] support Protocol 1
+- [ ] support Protocol 2
+- [ ] support XL430 maybe
+- [ ] support XL320 probably not
 
 # MIT License
 
