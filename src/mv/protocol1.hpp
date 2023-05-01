@@ -208,7 +208,7 @@ public:
     return pkt;
   }
 
-  uint8_t statusError(const Packet_t &pkt) { return pkt[4]; }
+  // uint8_t statusError(const Packet_t &pkt) { return pkt[4]; } // only status packets
 
   bool readPacket(uint8_t b) {
     switch (packet_state.state) {
