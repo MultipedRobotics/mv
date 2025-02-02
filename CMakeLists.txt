@@ -1,13 +1,42 @@
 cmake_minimum_required(VERSION 3.25.0)
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_C_STANDARD 17)
 
-# PROJECT_VERSION_MAJOR year
-# PROJECT_VERSION_MINOR month
-# PROJECT_VERSION_PATCH day
-# PROJECT_VERSION_TWEAK tweak
-project(mv VERSION 2023.01.28.0)
+set(PROJECT mv)
+if (1)
+  # PROJECT_VERSION_MAJOR year
+  # PROJECT_VERSION_MINOR month
+  # PROJECT_VERSION_PATCH day
+  # PROJECT_VERSION_TWEAK tweak
+  project(${PROJECT} VERSION 2023.01.28.0 LANGUAGES C CXX)
+
+  # Threads ---------------------------------------------------------
+  find_package(Threads REQUIRED)
+  string(PREPEND CMAKE_EXE_LINKER_FLAGS " -Wl ")
+  set(PROJECT_TARGET_PLATFORM "Unix")
+else()
+  set(PICO_BOARD pico) # pico or pico_w or pico2
+  set(PICO_SDK_PATH "$ENV{HOME}/github/pico-sdk")
+  set(ENV{PATH} "$ENV{HOME}/github/gcc-arm/bin:$ENV{PATH}")
+  set(PICO_SDK_PATH "${PICO_SDK_PATH}" CACHE PATH "Path to the PICO SDK")
+  set(PICO_CXX_ENABLE_EXCEPTIONS 0)
+
+  include(${PICO_SDK_PATH}/pico_sdk_init.cmake)
+
+  # Need ASM for tinyUSB and picotool to work
+  project(${PROJECT} LANGUAGES C CXX ASM)
+
+  # Initialize the SDK
+  pico_sdk_init()
+
+  string(PREPEND CMAKE_EXE_LINKER_FLAGS " -Wl,--print-memory-usage ")
+  set(PROJECT_TARGET_PLATFORM "Pi Pico")
+endif()
+
+string (APPEND CMAKE_CXX_FLAGS_RELEASE " -O3 ")
+string (APPEND CMAKE_C_FLAGS_RELEASE " -O3 ")
+
 
 if(PROJECT_IS_TOP_LEVEL)
     cmake_host_system_information(RESULT HOST QUERY HOSTNAME)
@@ -16,9 +45,12 @@ if(PROJECT_IS_TOP_LEVEL)
     cmake_host_system_information(RESULT PROC QUERY PROCESSOR_DESCRIPTION)
 
     message(STATUS "-------------------------------------")
-    message(STATUS "  Project: ${PROJECT_NAME}")
-    message(STATUS "  Version: ${CMAKE_PROJECT_VERSION}")
-    message(STATUS "  C++ ${CMAKE_CXX_STANDARD}")
+    message(STATUS " Project: ${PROJECT_NAME}")
+    message(STATUS " Target: ${PROJECT_TARGET_PLATFORM}")
+    message(STATUS " Board: ${PICO_BOARD}")
+    message(STATUS " Version: ${CMAKE_PROJECT_VERSION}")
+    message(STATUS " C++ ${CMAKE_CXX_STANDARD}")
+    message(STATUS " C ${CMAKE_C_STANDARD}")
     message(STATUS "-------------------------------------")
     message(STATUS " ${HOST}")
     message(STATUS " ${OSN}: ${OS_VERSION}")
@@ -26,36 +58,33 @@ if(PROJECT_IS_TOP_LEVEL)
     message(STATUS "-------------------------------------")
 
     set(BUILD_EXAMPLES ON)
-    set(BUILD_GTESTS ON)
+    if (NOT PICO_SDK)
+      set(BUILD_GTESTS ON)
+    else()
+      set(BUILD_GTESTS OFF)
+    endif()
 else()
     message(STATUS "-> ${PROJECT_NAME} is submodule")
     set(BUILD_EXAMPLES OFF)
     set(BUILD_GTESTS OFF)
 endif()
 
-# configure_file(${path to configure file 'config.h.in'}
-# include_directories(${PROJECT_BINARY_BIN}) // this allows the 'config.h' file to be used throughout the program
-
-# set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
-# set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
-# set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
-# include(CPack)
-
-# Boost -----------------------------------------------------------
-# find_package(Boost REQUIRED system)
-
-# Threads ---------------------------------------------------------
-# find_package(Threads REQUIRED)
-
 add_library(${PROJECT_NAME} INTERFACE)
 target_include_directories(${PROJECT_NAME} INTERFACE src)
 
 # Examples -------------------------------------------------------
-# if(${BUILD_EXAMPLES})
-#     add_subdirectory(examples/unix)
-# endif()
+if(${BUILD_EXAMPLES})
+  if (PICO_SDK)
+    message(STATUS "building pico examples")
+    add_subdirectory(examples/pico)
+  else()
+    message(STATUS "building unix examples")
+    add_subdirectory(examples/unix)
+  endif()
+endif()
 
 # Tests --------------------------------------------------------------
 if(${BUILD_GTESTS})
-    add_subdirectory(test)
+  message(STATUS "building unix tests")
+  add_subdirectory(test)
 endif()

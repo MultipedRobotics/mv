@@ -23,7 +23,7 @@ int main() {
   vector<uint16_t> steps{0, 511, 1023, 511};
 
   for (const auto &p : steps) {
-    packet mv = servo.makeMovePacket(1, p);
+    Packet_t mv = servo.makeMovePacket(1, p);
     // pprint(mv);
     printf(">> Wrote: %d ", serial.write(mv));
     // pprint(mv);

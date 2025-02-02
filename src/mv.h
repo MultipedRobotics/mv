@@ -49,13 +49,16 @@ union {
   uint16_t u16;
 } Memory_t;
 
-#if defined(ARDUINO)
-  #include <Arduino.h>
-  #include <mv/arduino_port.hpp>
-#else
+// #if defined(ARDUINO)
+//   #include <Arduino.h>
+//   #include <ports/arduino_port.hpp>
+#if defined(PICO_BOARD)
+// #if defined(PICO_SDK)
+  #include <ports/pico_port.hpp>
+#elif defined(__APPLE__)
   #include <unistd.h> // usleep
-inline void delay(unsigned int msec) { usleep(1000 * msec); }
-  #include <mv/unix_port.hpp>
+  inline void delay(unsigned int msec) { usleep(1000 * msec); }
+  #include <ports/unix_port.hpp>
 #endif
 
 #include <mv/ax12.hpp>

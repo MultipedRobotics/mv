@@ -68,6 +68,8 @@ constexpr uint8_t LOCK_REG                   = 47;
 constexpr uint8_t PUNCH_REG                  = 48;
 constexpr uint8_t PUNCH_H_REG                = 49;
 
+constexpr float DEG2CNT = 1023.0f / 300.0f;
+
 // Status Return Levels
 // /////////////////////////////////////////////////////////////// constexpr
 // static void delay(uint16_t current, uint16_t last) {
@@ -82,7 +84,7 @@ class AX12 : public Protocol1::PacketManager {
 
   uint16_t deg2count(const float deg) {
     float d   = deg < 300.0f ? (deg > 0.0f ? deg : 0.0f) : 300.0f;
-    float cnt = 1023.0f / 300.0f * d;
+    float cnt = AX::DEG2CNT * d;
     return static_cast<uint16_t>(cnt);
   }
 

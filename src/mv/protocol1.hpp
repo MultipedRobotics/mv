@@ -36,6 +36,27 @@ constexpr uint8_t CHECKSUM_ERR      = 16;
 constexpr uint8_t OVERLOAD_ERR      = 32;
 constexpr uint8_t INSTRUCTION_ERR   = 64;
 
+// replace LEN below
+constexpr uint8_t PING_PKT_LEN = 2;
+constexpr uint8_t REBOOT_PKT_LEN = 2;
+constexpr uint8_t WRITE8_PKT_LEN = 4;
+constexpr uint8_t WRITE16_PKT_LEN = 5;
+constexpr uint8_t WRITE32_PKT_LEN = 7;
+
+constexpr uint8_t BROADCAST_ID = 0xFE;
+constexpr uint8_t START        = 0xFF;
+constexpr uint8_t PING         = 1;
+constexpr uint8_t READ_DATA    = 2;
+constexpr uint8_t WRITE_DATA   = 3;
+constexpr uint8_t REG_WRITE    = 4;
+constexpr uint8_t ACTION       = 5;
+constexpr uint8_t RESET        = 6;
+constexpr uint8_t REBOOT       = 8;
+constexpr uint8_t SYNC_WRITE   = 0x83;
+constexpr uint8_t BULK_READ    = 0x92;
+constexpr uint8_t READ8        = 1;
+constexpr uint8_t READ16       = 2;
+
 static uint8_t compute_checksum(const Packet_t &pkt) {
   uint32_t checksum = 0;
   for (uint8_t i = 2; i < pkt.size(); ++i)
@@ -73,19 +94,7 @@ static bool valid_packet(const Packet_t &pkt) {
  */
 class PacketManager {
 
-  static constexpr uint8_t BROADCAST_ID = 0xFE;
-  static constexpr uint8_t START        = 0xFF;
-  static constexpr uint8_t PING         = 1;
-  static constexpr uint8_t READ_DATA    = 2;
-  static constexpr uint8_t WRITE_DATA   = 3;
-  static constexpr uint8_t REG_WRITE    = 4;
-  static constexpr uint8_t ACTION       = 5;
-  static constexpr uint8_t RESET        = 6;
-  static constexpr uint8_t REBOOT       = 8;
-  static constexpr uint8_t SYNC_WRITE   = 0x83;
-  static constexpr uint8_t BULK_READ    = 0x92;
-  static constexpr uint8_t READ8        = 1;
-  static constexpr uint8_t READ16       = 2;
+
 
   enum PacketState_t : uint8_t { NONE, HD0, HD1, ID, LEN, DATA, CHECKSUM };
 
@@ -104,10 +113,10 @@ public:
 
   // low level write
   Packet_t makeWritePacket(uint8_t ID, uint8_t reg, uint8_t data) {
-    const uint8_t len      = 4;
-    const uint8_t Checksum = (~(ID + len + WRITE_DATA + reg + data)) & 0xFF;
+    // const uint8_t len      = 4;
+    const uint8_t Checksum = (~(ID + WRITE8_PKT_LEN + WRITE_DATA + reg + data)) & 0xFF;
 
-    Packet_t pkt{START, START, ID, len, WRITE_DATA, reg, data, Checksum};
+    Packet_t pkt{START, START, ID, WRITE8_PKT_LEN, WRITE_DATA, reg, data, Checksum};
 
     return pkt;
   }
@@ -115,7 +124,7 @@ public:
   Packet_t makeWritePacket(uint8_t ID, uint8_t reg, uint16_t data) {
     const uint8_t hi       = (data >> 8) & 0xFF;
     const uint8_t lo       = data & 0xFF;
-    constexpr uint8_t LEN  = 5;
+    const uint8_t LEN  = 5;
     const uint8_t Checksum = (~(ID + LEN + WRITE_DATA + reg + lo + hi)) & 0xFF;
     return Packet_t{START, START, ID, LEN, WRITE_DATA, reg, lo, hi, Checksum};
   }
@@ -126,7 +135,7 @@ public:
     const uint8_t lo1     = data1 & 0xff;
     const uint8_t hi2     = data2 >> 8;
     const uint8_t lo2     = data2 & 0xff;
-    constexpr uint8_t LEN = 7;
+    const uint8_t LEN = 7;
     const uint8_t Checksum =
         (~(ID + LEN + WRITE_DATA + reg + lo1 + hi1 + lo2 + hi2)) & 0xFF;
 
@@ -137,15 +146,15 @@ public:
   }
 
   Packet_t makeReadPacket(uint8_t ID, uint8_t reg, uint8_t read_len) {
-    constexpr uint8_t LEN = 4;
+    const uint8_t LEN = 4;
     uint8_t Checksum      = (~(ID + LEN + READ_DATA + reg + read_len)) & 0xFF;
     return Packet_t{START, START, ID, LEN, READ_DATA, reg, read_len, Checksum};
   }
 
   Packet_t makePingPacket(uint8_t ID = BROADCAST_ID) {
-    constexpr uint8_t LEN  = 2;
-    const uint8_t Checksum = (~(ID + LEN + PING)) & 0xFF;
-    return Packet_t{START, START, ID, LEN, PING, Checksum};
+    // const uint8_t LEN  = 2;
+    const uint8_t Checksum = (~(ID + PING_PKT_LEN + PING)) & 0xFF;
+    return Packet_t{START, START, ID, PING_PKT_LEN, PING, Checksum};
   }
 
   Packet_t makeResetPacket(uint8_t ID) {
@@ -155,9 +164,9 @@ public:
   }
 
   Packet_t makeRebootPacket(uint8_t ID) {
-    constexpr uint8_t LEN  = 2;
-    const uint8_t Checksum = (~(ID + LEN + REBOOT)) & 0xFF;
-    return Packet_t{START, START, ID, LEN, REBOOT, Checksum};
+    // constexpr uint8_t LEN  = 2;
+    const uint8_t Checksum = (~(ID + REBOOT_PKT_LEN + REBOOT)) & 0xFF;
+    return Packet_t{START, START, ID, REBOOT_PKT_LEN, REBOOT, Checksum};
   }
 
   // multi-servo sync

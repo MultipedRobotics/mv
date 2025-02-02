@@ -1,11 +1,11 @@
 list(APPEND ex
     move.cpp
-    feedback.cpp
-    path.cpp
+    # feedback.cpp
+    # path.cpp
     sync_write.cpp
     ping.cpp
-    misc.cpp
-    read.cpp
+    # misc.cpp
+    # read.cpp
 )
 
 message(STATUS "Examples ----------------------")

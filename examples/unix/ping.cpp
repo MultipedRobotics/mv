@@ -16,11 +16,10 @@ int main() {
   AX12 servo;
   SerialPort serial;
   // string port = "/dev/tty.usbserial-A904MISU";
-  string port =
-      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A904MISU-if00-port0";
+  string port = "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A904MISU-if00-port0";
   serial.begin(port);
 
-  packet ping = servo.makePingPacket();
+  Packet_t ping = servo.makePingPacket();
   // pprint(ping);
   serial.write(ping);
 
