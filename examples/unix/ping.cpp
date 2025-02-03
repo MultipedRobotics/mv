@@ -19,7 +19,7 @@ int main() {
   string port = "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A904MISU-if00-port0";
   serial.begin(port);
 
-  Packet_t ping = servo.makePingPacket();
+  mvpkt_t ping = servo.makePingPacket();
   // pprint(ping);
   serial.write(ping);
 

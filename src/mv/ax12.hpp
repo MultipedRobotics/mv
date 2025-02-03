@@ -100,12 +100,12 @@ public:
     uint16_t ccw_limit;
   };
 
-  Packet_t makeServoPacket(uint8_t ID) { return makeReadPacket(ID, 0, 19); }
+  mvpkt_t makeServoPacket(uint8_t ID) { return makeReadPacket(ID, 0, 19); }
 
   /**
   Return: Servo struct, if Servo.id is -1, then error
   */
-  Servo_t get_servo_info(const Packet_t &pkt) {
+  Servo_t get_servo_info(const mvpkt_t &pkt) {
     Servo_t s;
     s.id = -1;
 
@@ -140,25 +140,25 @@ public:
   speed: 0-1023 counts, in increments of 0.111rpm, default is 0 (motor moves at
   max speed)
   */
-  Packet_t makeMovePacket(const SyncVec_t &info) {
+  mvpkt_t makeMovePacket(const SyncVec_t &info) {
     return makeSyncWritePacket(AX::GOAL_POSITION_REG, info);
   }
 
   /**
   position hex: 0x0000 - 0x0200 - 0x1023
   */
-  Packet_t makeMovePacket(const uint8_t ID, const uint16_t position) {
+  mvpkt_t makeMovePacket(const uint8_t ID, const uint16_t position) {
     return makeWritePacket(ID, AX::GOAL_POSITION_REG, position);
   }
   /**
   position deg: 0 - 150 - 300
   */
-  // Packet_t makeMovePacket(const uint8_t ID, const float position) {
+  // mvpkt_t makeMovePacket(const uint8_t ID, const float position) {
   //   uint16_t p = deg2count(position);
   //   return makeWritePacket(ID, AX::GOAL_POSITION_REG, p);
   // }
 
-  Packet_t makeTorquePacket(const uint8_t ID, const bool enable) {
+  mvpkt_t makeTorquePacket(const uint8_t ID, const bool enable) {
     const uint8_t enabled = enable ? 1 : 0;
     return makeWritePacket(ID, AX::TORQUE_ENABLE_REG, enabled);
   }

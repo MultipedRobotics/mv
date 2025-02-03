@@ -28,7 +28,7 @@ SOFTWARE.
 /*
 namespace Protocol2 {
 
-static uint16_t compute_checksum(const Packet_t &pkt)  {
+static uint16_t compute_checksum(const mvpkt_t &pkt)  {
   static const uint16_t crc_table[256] = {
     0x0000, 0x8005, 0x800F, 0x000A, 0x801B, 0x001E, 0x0014, 0x8011, 0x8033,
     0x0036, 0x003C, 0x8039, 0x0028, 0x802D, 0x8027, 0x0022, 0x8063, 0x0066,

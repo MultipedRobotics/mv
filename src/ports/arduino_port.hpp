@@ -84,7 +84,7 @@ struct SerialPort {
 
   // int deg2hex(int deg) {}
 
-  int write(const Packet_t &pkt) {
+  int write(const mvpkt_t &pkt) {
     set_dir(DD_WRITE);
 
     int num = serial->write(pkt.data(), pkt.size());
@@ -128,9 +128,9 @@ struct SerialPort {
   //   return 0;
   // }
 
-  Packet_t get_packet() { return proto.gpkt; }
+  mvpkt_t get_packet() { return proto.gpkt; }
 
-  StatusPacket_t get_status() {
+  Statusmvpkt_t get_status() {
     StatusPacket_t s;
     s.id  = proto.gpkt[2];
     s.err = proto.gpkt[4];

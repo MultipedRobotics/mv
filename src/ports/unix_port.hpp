@@ -110,7 +110,7 @@ public:
 
   // bool open(const std::string& port, int speed=B1000000);
   // void close();
-  int write(const Packet_t &pkt) {
+  int write(const mvpkt_t &pkt) {
     set_dir(DD_WRITE);
     // int num = 0;
     // if ((num = available()) > 0) printf("** Data in input: %d\n", num);

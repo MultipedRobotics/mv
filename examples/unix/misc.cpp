@@ -23,7 +23,7 @@ int main() {
   // vector<uint16_t> steps {0,511};
   //
   // for (const auto& p: steps){
-  //     packet mv = servo.make_move_packet(1, p);
+  //     mvpkt_t mv = servo.make_move_packet(1, p);
   //     pprint(mv);
   //     serial.write(mv);
   //     msleep(500);
@@ -73,7 +73,7 @@ int main() {
   //         {3, 100,s},
   //         {4, 100,s}
   //     };
-  //     packet mv = servo.make_sync_move_packet(ss);
+  //     mvpkt_t mv = servo.make_sync_move_packet(ss);
   //     pprint(mv);
   //     // serial.write(mv);
   //
@@ -102,40 +102,40 @@ int main() {
   //     {4, 400,300}
   // };
   //
-  // // packet mv = servo.make_sync_move_packet(s);
+  // // mvpkt_t mv = servo.make_sync_move_packet(s);
   // // pprint(mv);
   //
-  // packet mv2 = servo.make_sync_move_speed_packet(ss);
+  // mvpkt_t mv2 = servo.make_sync_move_speed_packet(ss);
   // pprint(mv2);
   //
   // cout << "-------------------------------"<< endl;
   //
-  // // packet mv3 = servo.make_sync_move_speed_packet(sss);
+  // // mvpkt_t mv3 = servo.make_sync_move_speed_packet(sss);
   // // pprint(mv3);
   //
-  // packet mv4 = servo.make_sync_move_speed_packet(sss);
+  // mvpkt_t mv4 = servo.make_sync_move_speed_packet(sss);
   // pprint(mv4);
 
   if (1) {
     srand(time(0));
-    packet mv = servo.makeMovePacket(1, rand() % 1023);
+    mvpkt_t mv = servo.makeMovePacket(1, rand() % 1023);
     serial.write(mv);
     delay(500);
   }
   // Protocol1 pc;
-  // packet p = pc.make_read_packet(1, 32, 2);
+  // mvpkt_t p = pc.make_read_packet(1, 32, 2);
   // pprint(p);
   // return 0;
 
-  // packet pkt = servo.read_goal_speed_packet(1);
-  packet pkt = servo.makePingPacket(1);
+  // mvpkt_t pkt = servo.read_goal_speed_packet(1);
+  mvpkt_t pkt = servo.makePingPacket(1);
   // pprint(pkt);
   int num = serial.write(pkt);
   cout << ">> sent: " << num << endl;
   delay(500);
   int ret = serial.read();
   printf(">> read: %d\n", ret);
-  // packet ans = serial.buffer2packet(ret);
+  // mvpkt_t ans = serial.buffer2packet(ret);
   // pprint(ans);
 
   return 0;

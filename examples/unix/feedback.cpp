@@ -28,14 +28,14 @@ int main() {
 
   // for (int i=0; i<1024; i+=50){
   //     printf(">> Count: %d\n", i);
-  //     packet mv = servo.make_move_packet(1, i);
+  //     mvpkt_t mv = servo.make_move_packet(1, i);
   //     if (serial.write(mv) != mv.size()) printf("*** wrote wrong amount!\n");
   //     msleep(delay);
   //
   //     // resp: [s,s,id,len,err,moving,chksum]
   //     uint8_t m = 1;
   //     int cnt = 10;
-  //     packet chk = servo.make_moving_packet(1);
+  //     mvpkt_t chk = servo.make_moving_packet(1);
   //     serial.write(chk);
   //     // pprint(chk);
   //     while (m != 0) {
@@ -54,7 +54,7 @@ int main() {
   //         if (num > 0){
   //             status_t ans = serial.decode();
   //             if (ans.error == 0 && ans.params.size() > 0) m = ans.params[0];
-  //             // moving packet
+  //             // moving mvpkt_t
   //             // printf("m %d", int(m));
   //         }
   //         // else printf("%d\n", num);
@@ -63,7 +63,7 @@ int main() {
   //     // printf("DONE\n");
   // }
 
-  packet mv = servo.make_move_packet(1, 512);
+  mvpkt_t mv = servo.make_move_packet(1, 512);
   serial.write(mv);
   delay(500);
 

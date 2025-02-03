@@ -26,7 +26,7 @@ int main() {
   uint16_t last = 511;
 
   for (const auto &p : path) {
-    packet mv = servo.makeMovePacket(1, p);
+    mvpkt_t mv = servo.makeMovePacket(1, p);
     serial.write(mv);
 
     /*

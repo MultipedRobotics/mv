@@ -57,14 +57,14 @@ constexpr uint8_t BULK_READ    = 0x92;
 constexpr uint8_t READ8        = 1;
 constexpr uint8_t READ16       = 2;
 
-static uint8_t compute_checksum(const Packet_t &pkt) {
+static uint8_t compute_checksum(const mvpkt_t &pkt) {
   uint32_t checksum = 0;
   for (uint8_t i = 2; i < pkt.size(); ++i)
     checksum += pkt[i];
   return (~checksum) & 0xFF;
 }
 
-static bool valid_packet(const Packet_t &pkt) {
+static bool valid_packet(const mvpkt_t &pkt) {
   if (pkt.size() == 0) return false;
   if ((pkt[0] != 0xff) || (pkt[1] != 0xff)) return false;
   uint8_t chksum = pkt.back();
@@ -109,27 +109,27 @@ public:
   PacketManager() {}
   ~PacketManager() {}
 
-  Packet_t gpkt; // global packet
+  mvpkt_t gpkt; // global packet
 
   // low level write
-  Packet_t makeWritePacket(uint8_t ID, uint8_t reg, uint8_t data) {
+  mvpkt_t makeWritePacket(uint8_t ID, uint8_t reg, uint8_t data) {
     // const uint8_t len      = 4;
     const uint8_t Checksum = (~(ID + WRITE8_PKT_LEN + WRITE_DATA + reg + data)) & 0xFF;
 
-    Packet_t pkt{START, START, ID, WRITE8_PKT_LEN, WRITE_DATA, reg, data, Checksum};
+    mvpkt_t pkt{START, START, ID, WRITE8_PKT_LEN, WRITE_DATA, reg, data, Checksum};
 
     return pkt;
   }
 
-  Packet_t makeWritePacket(uint8_t ID, uint8_t reg, uint16_t data) {
+  mvpkt_t makeWritePacket(uint8_t ID, uint8_t reg, uint16_t data) {
     const uint8_t hi       = (data >> 8) & 0xFF;
     const uint8_t lo       = data & 0xFF;
     const uint8_t LEN  = 5;
     const uint8_t Checksum = (~(ID + LEN + WRITE_DATA + reg + lo + hi)) & 0xFF;
-    return Packet_t{START, START, ID, LEN, WRITE_DATA, reg, lo, hi, Checksum};
+    return mvpkt_t{START, START, ID, LEN, WRITE_DATA, reg, lo, hi, Checksum};
   }
 
-  Packet_t makeWritePacket(uint8_t ID, uint8_t reg, uint16_t data1,
+  mvpkt_t makeWritePacket(uint8_t ID, uint8_t reg, uint16_t data1,
                            uint16_t data2) {
     const uint8_t hi1     = data1 >> 8;
     const uint8_t lo1     = data1 & 0xff;
@@ -139,45 +139,45 @@ public:
     const uint8_t Checksum =
         (~(ID + LEN + WRITE_DATA + reg + lo1 + hi1 + lo2 + hi2)) & 0xFF;
 
-    Packet_t pkt{START, START, ID,  LEN, WRITE_DATA, reg,
+    mvpkt_t pkt{START, START, ID,  LEN, WRITE_DATA, reg,
                  lo1,   hi1,   lo2, hi2, Checksum};
 
     return pkt;
   }
 
-  Packet_t makeReadPacket(uint8_t ID, uint8_t reg, uint8_t read_len) {
+  mvpkt_t makeReadPacket(uint8_t ID, uint8_t reg, uint8_t read_len) {
     const uint8_t LEN = 4;
     uint8_t Checksum      = (~(ID + LEN + READ_DATA + reg + read_len)) & 0xFF;
-    return Packet_t{START, START, ID, LEN, READ_DATA, reg, read_len, Checksum};
+    return mvpkt_t{START, START, ID, LEN, READ_DATA, reg, read_len, Checksum};
   }
 
-  Packet_t makePingPacket(uint8_t ID = BROADCAST_ID) {
+  mvpkt_t makePingPacket(uint8_t ID = BROADCAST_ID) {
     // const uint8_t LEN  = 2;
     const uint8_t Checksum = (~(ID + PING_PKT_LEN + PING)) & 0xFF;
-    return Packet_t{START, START, ID, PING_PKT_LEN, PING, Checksum};
+    return mvpkt_t{START, START, ID, PING_PKT_LEN, PING, Checksum};
   }
 
-  Packet_t makeResetPacket(uint8_t ID) {
+  mvpkt_t makeResetPacket(uint8_t ID) {
     constexpr uint8_t LEN  = 2;
     const uint8_t Checksum = (~(ID + LEN + RESET)) & 0xFF;
-    return Packet_t{START, START, ID, LEN, RESET, Checksum};
+    return mvpkt_t{START, START, ID, LEN, RESET, Checksum};
   }
 
-  Packet_t makeRebootPacket(uint8_t ID) {
+  mvpkt_t makeRebootPacket(uint8_t ID) {
     // constexpr uint8_t LEN  = 2;
     const uint8_t Checksum = (~(ID + REBOOT_PKT_LEN + REBOOT)) & 0xFF;
-    return Packet_t{START, START, ID, REBOOT_PKT_LEN, REBOOT, Checksum};
+    return mvpkt_t{START, START, ID, REBOOT_PKT_LEN, REBOOT, Checksum};
   }
 
   // multi-servo sync
-  Packet_t makeSyncWritePacket(const uint8_t reg, const SyncVec_t &info) {
-  // Packet_t makeMovePacket(const uint8_t reg, const SyncVec_t &info) {
+  mvpkt_t makeSyncWritePacket(const uint8_t reg, const SyncVec_t &info) {
+  // mvpkt_t makeMovePacket(const uint8_t reg, const SyncVec_t &info) {
     const bool do_speed       = info[0].speed == 0 ? false : true;
     const uint8_t info_bytes  = do_speed ? 5 : 3;
     const uint8_t reg_len     = do_speed ? 4 : 2;
     const uint8_t payload_len = (reg_len + 1) * info.size() + 4;
-    // Packet_t pkt = Packet_t(payload_len + 4);
-    Packet_t pkt(payload_len + 4);
+    // mvpkt_t pkt = mvpkt_t(payload_len + 4);
+    mvpkt_t pkt(payload_len + 4);
 
     pkt[0] = START;
     pkt[1] = START;
@@ -217,7 +217,7 @@ public:
     return pkt;
   }
 
-  // uint8_t statusError(const Packet_t &pkt) { return pkt[4]; } // only status packets
+  // uint8_t statusError(const mvpkt_t &pkt) { return pkt[4]; } // only status packets
 
   bool readPacket(uint8_t b) {
     switch (packet_state.state) {
@@ -261,7 +261,7 @@ public:
     case CHECKSUM:
       // buffer[4 + (++packet_state.offset)] = b;
       gpkt.push_back(b);
-      // Packet_t pkt(buffer, buffer + packet_state.pkt_len);
+      // mvpkt_t pkt(buffer, buffer + packet_state.pkt_len);
       packet_state.offset = 0;
       packet_state.state  = NONE;
       return true;

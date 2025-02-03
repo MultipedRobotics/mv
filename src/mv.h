@@ -26,8 +26,9 @@ SOFTWARE.
 #include <stdint.h>
 #include <vector>
 
-typedef std::vector<uint8_t> Packet_t;
-typedef std::vector<Packet_t> PktArray_t;
+// mvpkt_t
+typedef std::vector<uint8_t> mvpkt_t;
+typedef std::vector<mvpkt_t> PktArray_t;
 
 struct ServoMoveSpeed_t {
   uint8_t id;
