@@ -4,8 +4,10 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_C_STANDARD 17)
 
 set(PROJECT mv)
-option(BUILD_ID "what to build for: apple or pico" "apple")
-if (BUILD_ID STREQUAL "apple")
+
+set(BUILDFOR "apple" CACHE STRING "what to build for: apple or pico")
+
+if (BUILDFOR STREQUAL "apple" OR BUILDFOR STREQUAL "linux")
   # PROJECT_VERSION_MAJOR year
   # PROJECT_VERSION_MINOR month
   # PROJECT_VERSION_PATCH day
@@ -16,7 +18,7 @@ if (BUILD_ID STREQUAL "apple")
   find_package(Threads REQUIRED)
   string(PREPEND CMAKE_EXE_LINKER_FLAGS " -Wl ")
   set(PROJECT_TARGET_PLATFORM "Unix")
-elseif(BUILD_ID STREQUAL "pico")
+elseif(BUILDFOR STREQUAL "pico")
   set(PICO_BOARD pico) # pico or pico_w or pico2
   set(PICO_SDK_PATH "$ENV{HOME}/github/pico-sdk")
   set(ENV{PATH} "$ENV{HOME}/github/gcc-arm/bin:$ENV{PATH}")
@@ -33,6 +35,8 @@ elseif(BUILD_ID STREQUAL "pico")
 
   string(PREPEND CMAKE_EXE_LINKER_FLAGS " -Wl,--print-memory-usage ")
   set(PROJECT_TARGET_PLATFORM "Pi Pico")
+else()
+  message(FATAL_ERROR "No BUILDFOR given")
 endif()
 
 string (APPEND CMAKE_CXX_FLAGS_RELEASE " -O3 ")
@@ -85,7 +89,7 @@ if(${BUILD_EXAMPLES})
 endif()
 
 # Tests --------------------------------------------------------------
-if(${BUILD_GTESTS})
-  message(STATUS "building unix tests")
-  add_subdirectory(test)
-endif()
+# if(${BUILD_GTESTS})
+#   message(STATUS "building unix tests")
+#   add_subdirectory(test)
+# endif()

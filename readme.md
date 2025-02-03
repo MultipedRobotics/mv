@@ -12,7 +12,7 @@ unix move command.
 ```bash
 $ mkdir build
 $ cd build
-$ rm -fr * && cmake -DBUILD_ID=pico .. && make
+$ cmake -DBUILDFOR=pico .. && make
 ```
 
 ## Cool
