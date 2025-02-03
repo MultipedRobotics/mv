@@ -104,7 +104,7 @@ public:
       perror("*** Couldn't set port attribute");
 
     set_dir(DD_READ);
-    delay(100);
+    sleep_ms(100);
     set_dir(DD_WRITE);
   }
 

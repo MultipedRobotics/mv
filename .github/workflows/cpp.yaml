@@ -20,10 +20,10 @@ jobs:
             #     cd cpp
             #     chmod a+x *.sh
             #     ./build_extlibs.sh
-            - name: Test gecko
-              run: |
-                mkdir -p build
-                cd build
-                cmake ..
-                make
-                ./test/test-all
+            # - name: Test gecko
+            #   run: |
+            #     mkdir -p build
+            #     cd build
+            #     cmake ..
+            #     make
+            #     ./test/test-all

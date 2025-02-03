@@ -7,6 +7,14 @@
 Yet another Dynamexl library for smart servos. This is call `mv` after the
 unix move command.
 
+## Command line
+
+```bash
+$ mkdir build
+$ cd build
+$ rm -fr * && cmake -DBUILD_ID=pico .. && make
+```
+
 ## Cool
 
 - [termcolor](https://github.com/ikalnytskyi/termcolor)

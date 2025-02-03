@@ -18,6 +18,20 @@ int main() {
 
   ServoPort s;
 
+  uint8_t data[] = {1,2,3,4,5,6,7,8,9,0};
+  s.write(data, 10);
+  s.read(data, 10);
+  s.write(data, 10);
+  s.read(data, 10);
+  s.write(data, 10);
+  s.read(data, 10);
+  s.write(data, 10);
+  s.read(data, 10);
+  s.write(data, 10);
+  s.read(data, 10);
+  s.write(data, 10);
+  s.read(data, 10);
+
   while (1) {
     printf(".");
     sleep_ms(1000);

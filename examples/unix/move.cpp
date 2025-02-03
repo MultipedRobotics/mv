@@ -27,7 +27,7 @@ int main() {
     // pprint(mv);
     printf(">> Wrote: %d ", serial.write(mv));
     // pprint(mv);
-    delay(1000);
+    sleep_ms(1000);
   }
 
   return 0;

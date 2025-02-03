@@ -53,11 +53,16 @@ union {
 //   #include <Arduino.h>
 //   #include <ports/arduino_port.hpp>
 #if defined(PICO_BOARD)
-// #if defined(PICO_SDK)
   #include <ports/pico_port.hpp>
 #elif defined(__APPLE__)
   #include <unistd.h> // usleep
-  inline void delay(unsigned int msec) { usleep(1000 * msec); }
+  inline void sleep_us(unsigned int usec) { usleep(usec); }
+  inline void sleep_ms(unsigned int msec) { usleep(1000 * msec); }
+  #include <ports/unix_port.hpp>
+#elif defined(__linux__)
+  #include <unistd.h> // usleep
+  inline void sleep_us(unsigned int usec) { usleep(usec); }
+  inline void sleep_ms(unsigned int msec) { usleep(1000 * msec); }
   #include <ports/unix_port.hpp>
 #endif
 

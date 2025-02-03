@@ -7,6 +7,7 @@
 #include <hardware/uart.h>
 #include <stdint.h>
 
+///////////////////////////////////////////////////////////
 
 /**
  This is a FIFO, but with a fixed size that will over write old
@@ -15,8 +16,8 @@
 template <uint16_t BUFFER_SIZE> class Fifo {
   // public:
   uint8_t buffer[BUFFER_SIZE];
-  uint16_t head{0}; // read / pop
-  uint16_t tail{0}; // write / push
+  uint16_t head{0}; // read / pop / oldest data
+  uint16_t tail{0}; // write / push / newest data
   uint16_t numElem{0};
 
 public:
@@ -42,7 +43,7 @@ public:
     }
     buffer[tail] = b;
     tail         = nextPos(tail);
-    numElem      = numElem + 1;
+    numElem      += 1;
   }
 
   uint8_t pop() volatile {
@@ -50,9 +51,37 @@ public:
     uint8_t ret = buffer[head];
     head        = nextPos(head);
     numElem     = numElem - 1;
+    if (numElem == 0) clear();
     return ret;
   }
+
+  // uint16_t copy(uint8_t *p, const uint16_t size) volatile {
+  //   if (tail > head) {
+  //     uint16_t n = tail - head;
+  //     n = n > size ? size : n;
+  //     memcpy(p, &buffer[head], n);
+  //     head += n;
+  //     return n;
+  //   }
+  //   else {
+  //     uint16_t n = BUFFER_SIZE - head;
+  //     n = n > size ? size : n;
+  //     uint16_t save = n;
+  //     memcpy(p, &buffer[head], n);
+  //     if (n == size) {
+  //       head += n;
+  //       return save;
+  //     }
+  //     n = size - n;
+  //     n = n > tail ? tail : n;
+  //     memcpy(&p[save], &buffer[n], n);
+  //     head = n;
+  //     return save + n;
+  //   }
+  // }
 };
+
+///////////////////////////////////////////////////////////
 
 constexpr uint UART0_TX_PIN    = 0;
 constexpr uint UART0_RX_PIN    = 1;
@@ -65,15 +94,6 @@ constexpr uint32_t tx_valid[2] = { // uart0, uart1
 constexpr uint32_t rx_valid[2] = { // uart0, uart1
     (1 << 1) | (1 << 13) | (1 << 17) | (1 << 29),
     (1 << 5) | (1 << 9) | (1 << 21) | (1 << 25)};
-// constexpr uint32_t sda_valid[2] = { // i2c0, i2c1
-//     (1 << 0) | (1 << 4) | (1 << 8) | (1 << 12) | (1 << 16) | (1 << 20) |
-//         (1 << 24) | (1 << 28),
-//     (1 << 2) | (1 << 6) | (1 << 10) | (1 << 14) | (1 << 18) | (1 << 22) |
-//         (1 << 26)};
-// constexpr uint32_t scl_valid[2] = { // i2c0, i2c1
-//   (1 << 1) | (1 << 5) | (1 << 9) | (1 << 13) | (1 << 17) | (1 << 21) | (1 <<
-//   25) | (1 << 29), (1 << 3) | (1 << 7) | (1 << 11) | (1 << 15) | (1 << 19) |
-//   (1 << 23) | (1 << 27)};
 
 constexpr uint16_t UART_BUFFER_SIZE = 128;
 static volatile Fifo<UART_BUFFER_SIZE> buffer_0;
@@ -114,15 +134,17 @@ static void uart1_irq_func(void) {
   irq_set_enabled(UART1_IRQ, true);
 }
 
+
 class ServoPort {
   uart_inst_t *uart;
+  uint32_t dd{0};
   volatile Fifo<UART_BUFFER_SIZE> *buffer{nullptr};
 
 public:
   ServoPort() {}
   ~ServoPort() { uart_deinit(uart); }
 
-  uint init(uint baudrate, uint8_t port, uint8_t pin_tx, uint8_t pin_rx) {
+  uint init(uint baudrate, uint8_t port, uint8_t pin_tx, uint8_t pin_rx, uint8_t pin_dd) {
     bool valid = (1 << pin_tx) & tx_valid[port];
     if (!valid) return 0;
     valid = (1 << pin_rx) & rx_valid[port];
@@ -156,17 +178,20 @@ public:
     uart_set_fifo_enabled(uart, true);
     uart_set_translate_crlf(uart, false);
 
+    gpio_init(pin_dd);
+    gpio_set_dir(pin_dd, GPIO_OUT);
+    dd = pin_dd;
+    gpio_put(dd, 0);
+
     return baudrate;
   }
 
   inline bool is_enabled() { return uart_is_enabled(uart); }
-
   inline void flush() { buffer->clear(); }
-
   inline uint set_baud(uint baud) { return uart_set_baudrate(uart, baud); }
-
   inline size_t available() { return buffer->size(); }
 
+  inline uint8_t read() { return buffer->pop(); }
   size_t read(uint8_t *data, size_t size) {
     size_t cnt   = 0;
     size_t bsize = buffer->size();
@@ -175,11 +200,12 @@ public:
     }
 
     return cnt;
+    // return buffer->copy(data, size);
   }
 
-  inline uint8_t read() { return buffer->pop(); }
-
   void write(const uint8_t *data, size_t size) {
+    gpio_put(dd, 1);
     uart_write_blocking(uart, data, size);
+    gpio_put(dd, 0);
   }
 };
