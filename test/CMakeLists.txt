@@ -2,17 +2,10 @@ include(FetchContent)
 
 # GTest -----------------
 FetchContent_Declare(gtest
-  GIT_REPOSITORY "https://github.com/google/googletest"
-  GIT_TAG "origin/main"
-  SOURCE_DIR "${CMAKE_BINARY_DIR}/gtest"
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG        v1.15.2 # or another tag/branch
 )
-# set(EXAMPLES OFF CACHE INTERNAL "Dont build examples")
 FetchContent_MakeAvailable(gtest)
-if(gtest_POPULATED)
-    message(STATUS "=> Found gtest")
-else()
-    message(STATUS "*** Didn't find gtest")
-endif()
 
 enable_testing()
 

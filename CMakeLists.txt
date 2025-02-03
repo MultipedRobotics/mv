@@ -91,7 +91,7 @@ if(${BUILD_EXAMPLES})
 endif()
 
 # Tests --------------------------------------------------------------
-# if(${BUILD_GTESTS})
-#   message(STATUS "building unix tests")
-#   add_subdirectory(test)
-# endif()
+if(${BUILD_GTESTS})
+  message(STATUS "building unix tests")
+  add_subdirectory(test)
+endif()
