@@ -12,7 +12,7 @@ if (BUILDFOR STREQUAL "apple" OR BUILDFOR STREQUAL "linux")
   # PROJECT_VERSION_MINOR month
   # PROJECT_VERSION_PATCH day
   # PROJECT_VERSION_TWEAK tweak
-  project(${PROJECT} VERSION 2023.01.28.0 LANGUAGES C CXX)
+  project(${PROJECT} VERSION 2025.02.02.0 LANGUAGES C CXX)
 
   # Threads ---------------------------------------------------------
   find_package(Threads REQUIRED)
@@ -51,9 +51,11 @@ if(PROJECT_IS_TOP_LEVEL)
 
     message(STATUS "-------------------------------------")
     message(STATUS " Project: ${PROJECT_NAME}")
-    message(STATUS " Target: ${PROJECT_TARGET_PLATFORM}")
-    message(STATUS " Board: ${PICO_BOARD}")
-    message(STATUS " Version: ${CMAKE_PROJECT_VERSION}")
+    if (PICO_BOARD)
+      message(STATUS " Board: ${PICO_BOARD}")
+    else()
+      message(STATUS " Version: ${CMAKE_PROJECT_VERSION} for ${BUILDFOR}")
+    endif()
     message(STATUS " C++ ${CMAKE_CXX_STANDARD}")
     message(STATUS " C ${CMAKE_C_STANDARD}")
     message(STATUS "-------------------------------------")
