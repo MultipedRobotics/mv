@@ -25,9 +25,9 @@ int main() {
   // pico_stdio_uart(); // do this in cmake right now
 
   // wait for usb serial connection
-  while (!tud_cdc_connected()) {
-    sleep_ms(500);
-  }
+  // while (!tud_cdc_connected()) {
+  //   sleep_ms(500);
+  // }
 
   cyw43_arch_init();
 
@@ -39,7 +39,7 @@ int main() {
   ServoPort ss;
   uint32_t baud2 = ss.open(UART1PINS,DD1_PIN);
 
-  mvpkt_t serv = AX12::makeMovePacket(1,140.0f);
+  mvpkt_t serv = AX12::makeMovePacketDeg(1,140.0f);
   s.write(serv);
 
   while (1) {
