@@ -24,27 +24,36 @@ SOFTWARE.
 #pragma once
 
 #include <stdint.h>
+#include <vector>
 
-#include "mv/structs.hpp"
+// mvpkt_t - to/from serial
+typedef std::vector<uint8_t> mvpkt_t;
+typedef std::vector<mvpkt_t> mvpkts_t;
 
-// fix time functions
-#if defined(__APPLE__) || defined(__linux__) || defined(__unix__)
-  #include <unistd.h> // usleep
-  inline void sleep_us(unsigned int usec) { usleep(usec); }
-  inline void sleep_ms(unsigned int msec) { usleep(1000 * msec); }
-#endif
+// union {
+//   struct {
+//     uint8_t hi, lo;
+//   };
+//   uint16_t u16;
+// } memory_t;
 
-// os specific servo port
-#if defined(PICO_BOARD)
-  #include <ports/pico_port.hpp>
-#elif defined(__APPLE__)
-  #include <ports/unix_port.hpp>
-#elif defined(__linux__)
-  #include <ports/unix_port.hpp>
-#endif
+template<float window>
+class WindowAve {
+  float ave{0.0f};
+  float tmp{0.0f};
+  uint32_t cnt{static_cast<uint32_t>(window)};
+  uint32_t win_len{static_cast<uint32_t>(window)};
+  float win{1.0f / window};
 
-#include <mv/protocol1.hpp>
-#include <mv/protocol2.hpp>
-#include <mv/ax12.hpp>
-#include <mv/xl320.hpp>
-#include <mv/xl430.hpp>
+public:
+  float calc(float val) {
+    tmp += val*win;
+    if (cnt < win_len) cnt += 1;
+    else {
+      cnt = 0;
+      ave = tmp;
+      tmp = 0.0f;
+    }
+    return ave;
+  }
+};

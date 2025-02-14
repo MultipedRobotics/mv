@@ -25,7 +25,7 @@ SOFTWARE.
 
 #include "protocol1.hpp"
 
-namespace AX {
+namespace AX12 {
 // EEPROM AREA  ///////////////////////////////////////////////////////////
 constexpr uint8_t MODEL_NUMBER_REG       = 0;
 constexpr uint8_t VERSION_REG            = 2;
@@ -67,107 +67,89 @@ constexpr uint8_t MOVING_REG                 = 46;
 constexpr uint8_t LOCK_REG                   = 47;
 constexpr uint8_t PUNCH_REG                  = 48;
 constexpr uint8_t PUNCH_H_REG                = 49;
+constexpr float DEG2CNT                      = 1023.0f / 300.0f;
 
-constexpr float DEG2CNT = 1023.0f / 300.0f;
+// struct ServoMoveSpeed_t {
+//   uint8_t id;
+//   uint16_t count; // 0-1023 counts
+//   uint16_t speed; // 0-1023
+// };
 
-// Status Return Levels
-// /////////////////////////////////////////////////////////////// constexpr
-// static void delay(uint16_t current, uint16_t last) {
-//   msleep(int(1000.0*double(abs(current-last))/1207.14));
+// typedef std::vector<ServoMoveSpeed_t> SyncVec_t;
+
+// // struct ReadStatus_t {
+// //   bool ok;
+// //   PktArray_t pkts;
+// // };
+
+// struct statuspkt_t {
+//   uint8_t id;
+//   uint8_t err;
+// };
+
+
+static uint16_t deg2cnt(float deg) {
+  deg = deg < 300.0f ? (deg > 0.0f ? deg : 0.0f) : 300.0f;
+  deg *= DEG2CNT;
+  return static_cast<uint16_t>(deg);
+}
+
+inline uint16_t merge16(uint16_t lo, uint16_t hi) { return lo + (hi << 8); }
+
+struct Servo_t {
+  uint16_t model_number;
+  uint8_t firmware_version;
+  uint8_t id;
+  uint16_t cw_limit;
+  uint16_t ccw_limit;
+};
+
+static Servo_t get_servo_info(const mvpkt_t &pkt) {
+  Servo_t s;
+  s.id = -1;
+
+  if (pkt.size() != 6 + 19) return s; // missing bytes?
+  if (pkt[4] != 0) return s;          // err?
+
+  // uint8_t *p = &(pkt.data()[5]);
+  const uint8_t *p = pkt.data();
+  p += 5; // ??
+
+  s.model_number     = merge16(p[0], p[1]); // p[0] + (p[1] << 8);
+  s.firmware_version = p[2];
+  s.id               = p[3];
+  s.cw_limit         = merge16(p[6], p[7]); // p[6] + (p[7] << 8);
+  s.ccw_limit        = merge16(p[8], p[9]); // p[8] + (p[9] << 8);
+
+  return s;
+}
+
+// move (angle): 0-1023 counts (0-300 deg)
+// speed: 0-1023 counts, in increments of 0.111rpm, default is 0 (motor moves at
+// max speed)
+// no returned status packet since this uses the broadcast address
+static mvpkt_t makeMovePacket(const Protocol1::SyncVec_t &info) {
+  return Protocol1::makeSyncWritePacket(GOAL_POSITION_REG, info);
+}
+
+// position hex: 0 - 512 - 1023
+// static mvpkt_t makeMovePacketCnt(const ServoMoveSpeed_t pkt) {
+//   return Protocol1::makeWritePacket(pkt.id, GOAL_POSITION_REG, pkt.count);
 // }
 
-} // namespace AX
+// position deg: 0 - 150 - 300
+static mvpkt_t makeMovePacketDeg(const uint8_t ID, const float position) {
+  uint16_t p = deg2cnt(position);
+  return Protocol1::makeWritePacket(ID, GOAL_POSITION_REG, p);
+}
 
-class AX12 : public Protocol1::PacketManager {
+inline mvpkt_t makeMovePacket(const uint8_t ID, const uint16_t position) {
+  return Protocol1::makeWritePacket(ID, GOAL_POSITION_REG, position);
+}
 
-  inline uint16_t merge(uint8_t lo, uint8_t hi) { return lo + (hi << 8); }
+static mvpkt_t makeTorquePacket(const uint8_t ID, const bool enable) {
+  const uint8_t enabled = enable ? 1 : 0;
+  return Protocol1::makeWritePacket(ID, TORQUE_ENABLE_REG, enabled);
+}
 
-  uint16_t deg2count(const float deg) {
-    float d   = deg < 300.0f ? (deg > 0.0f ? deg : 0.0f) : 300.0f;
-    float cnt = AX::DEG2CNT * d;
-    return static_cast<uint16_t>(cnt);
-  }
-
-public:
-  AX12() {}
-  ~AX12() {}
-
-  struct Servo_t {
-    uint16_t model_number;
-    uint8_t firmware_version;
-    uint8_t id;
-    uint16_t cw_limit;
-    uint16_t ccw_limit;
-  };
-
-  mvpkt_t makeServoPacket(uint8_t ID) { return makeReadPacket(ID, 0, 19); }
-
-  /**
-  Return: Servo struct, if Servo.id is -1, then error
-  */
-  Servo_t get_servo_info(const mvpkt_t &pkt) {
-    Servo_t s;
-    s.id = -1;
-
-    if (pkt.size() != 6 + 19) return s; // missing bytes?
-    if (pkt[4] != 0) return s;          // err?
-
-    // uint8_t *p = &(pkt.data()[5]);
-    const uint8_t *p = pkt.data();
-    p += 5; // ??
-
-    s.model_number     = merge(p[0], p[1]); // p[0] + (p[1] << 8);
-    s.firmware_version = p[2];
-    s.id               = p[3];
-    s.cw_limit         = merge(p[6], p[7]); // p[6] + (p[7] << 8);
-    s.ccw_limit        = merge(p[8], p[9]); // p[8] + (p[9] << 8);
-
-    // mem.lo = p[6];
-    // mem.hi = p[7];
-    // s.ccw_limit = mem.u16;
-
-    // s.model_number = pkt[5] + (pkt[6] << 8);
-    // s.firmware_version = pkt[7];
-    // s.id = pkt[8]
-    // s.cw_limit = pkt[11] + (pkt[12] << 8);
-    // s.ccw_limit = pkt[13] + (pkt[14] << 8);
-
-    return s;
-  }
-
-  /*
-  move (angle): 0x0000-0x1023 counts (0-300 deg)
-  speed: 0-1023 counts, in increments of 0.111rpm, default is 0 (motor moves at
-  max speed)
-  */
-  mvpkt_t makeMovePacket(const SyncVec_t &info) {
-    return makeSyncWritePacket(AX::GOAL_POSITION_REG, info);
-  }
-
-  /**
-  position hex: 0x0000 - 0x0200 - 0x1023
-  */
-  mvpkt_t makeMovePacket(const uint8_t ID, const uint16_t position) {
-    return makeWritePacket(ID, AX::GOAL_POSITION_REG, position);
-  }
-  /**
-  position deg: 0 - 150 - 300
-  */
-  // mvpkt_t makeMovePacket(const uint8_t ID, const float position) {
-  //   uint16_t p = deg2count(position);
-  //   return makeWritePacket(ID, AX::GOAL_POSITION_REG, p);
-  // }
-
-  mvpkt_t makeTorquePacket(const uint8_t ID, const bool enable) {
-    const uint8_t enabled = enable ? 1 : 0;
-    return makeWritePacket(ID, AX::TORQUE_ENABLE_REG, enabled);
-  }
-
-  // packet read_goal_speed_packet(uint8_t ID){
-  //   return make_read_packet(ID, AX::GOAL_SPEED_REG, 2);
-  // }
-
-  // void diffdelay(uint16_t current, uint16_t last) {
-  //   delay(int(1000.0 * double(abs(current - last)) / 1207.14));
-  // }
-};
+} // namespace AX12

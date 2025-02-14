@@ -13,12 +13,12 @@ using namespace std;
 
 int main() {
 
-  AX12 servo;
-  SerialPort serial;
+  // AX12 servo;
+  ServoPort serial;
   // string port = "/dev/tty.usbserial-A904MISU";
   string port =
       "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A904MISU-if00-port0";
-  serial.begin(port);
+  serial.init(port);
 
   // vector<uint16_t> path {511, 0, 1023, 0, 1023, 0, 1023, 511};
   vector<uint16_t> path{511, 34, 100, 300, 564, 758, 1000,
@@ -26,7 +26,7 @@ int main() {
   uint16_t last = 511;
 
   for (const auto &p : path) {
-    mvpkt_t mv = servo.makeMovePacket(1, p);
+    mvpkt_t mv = AX12::makeMovePacket(1, p);
     serial.write(mv);
 
     /*
@@ -41,7 +41,7 @@ int main() {
     int d = 0;
     if (p >= last) d = int(1000.0 * (p - last) / 1207.14);
     else d = int(1000.0 * (last - p) / 1207.14);
-    delay(d);
+    sleep_ms(d);
     last = p;
   }
 

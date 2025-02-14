@@ -5,7 +5,7 @@ set(CMAKE_C_STANDARD 17)
 
 set(PROJECT mv)
 
-set(BUILDFOR "apple" CACHE STRING "what to build for: apple or pico")
+set(BUILDFOR "apple" CACHE STRING "what to build for: apple, linux or pico")
 
 if (BUILDFOR STREQUAL "apple" OR BUILDFOR STREQUAL "linux")
   # PROJECT_VERSION_MAJOR year
@@ -19,7 +19,7 @@ if (BUILDFOR STREQUAL "apple" OR BUILDFOR STREQUAL "linux")
   string(PREPEND CMAKE_EXE_LINKER_FLAGS " -Wl ")
   set(PROJECT_TARGET_PLATFORM "Unix")
 elseif(BUILDFOR STREQUAL "pico")
-  set(PICO_BOARD pico) # pico or pico_w or pico2
+  set(PICO_BOARD pico_w) # pico or pico_w or pico2
   set(PICO_SDK_PATH "$ENV{HOME}/github/pico-sdk")
   set(ENV{PATH} "$ENV{HOME}/github/gcc-arm/bin:$ENV{PATH}")
   set(PICO_SDK_PATH "${PICO_SDK_PATH}" CACHE PATH "Path to the PICO SDK")
@@ -39,8 +39,8 @@ else()
   message(FATAL_ERROR "No BUILDFOR given")
 endif()
 
-string (APPEND CMAKE_CXX_FLAGS_RELEASE " -O3 ")
-string (APPEND CMAKE_C_FLAGS_RELEASE " -O3 ")
+# string (APPEND CMAKE_CXX_FLAGS_RELEASE " -O3 ")
+# string (APPEND CMAKE_C_FLAGS_RELEASE " -O3 ")
 
 
 if(PROJECT_IS_TOP_LEVEL)

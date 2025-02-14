@@ -13,16 +13,16 @@ using namespace std;
 
 int main() {
 
-  AX12 servo;
-  SerialPort serial;
+  // AX12 servo;
+  ServoPort serial;
   // // string port = "/dev/tty.usbserial-A904MISU";
   string port =
       "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A904MISU-if00-port0";
-  serial.begin(port);
+  serial.init(port);
 
   if (0) {
     srand(time(0));
-    mvpkt_t mv = servo.makeMovePacket(1, rand() % 1023);
+    mvpkt_t mv = AX12::makeMovePacket(1, rand() % 1023);
     serial.write(mv);
     delay(500);
   }
@@ -32,7 +32,7 @@ int main() {
   // return 0;
 
   // mvpkt_t pkt = servo.read_goal_speed_packet(1);
-  mvpkt_t pkt = servo.makeReadPacket(1, AX::GOAL_SPEED, 2);
+  mvpkt_t pkt = AX12::makeReadPacket(1, AX::GOAL_SPEED, 2);
   // pprint(pkt);
   int num = serial.write(pkt);
   cout << ">> sent: " << num << endl;

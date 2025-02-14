@@ -10,16 +10,18 @@
 #include <mv.h>
 
 using namespace std;
+using namespace Protocol1;
 
 int main() {
 
-  AX12 servo;
-  SerialPort serial;
+  // AX12 servo;
+  ServoPort serial;
   // string port = "/dev/tty.usbserial-A904MISU";
-  string port = "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A904MISU-if00-port0";
-  serial.begin(port);
+  string port =
+      "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A904MISU-if00-port0";
+  serial.init(port);
 
-  mvpkt_t ping = servo.makePingPacket();
+  mvpkt_t ping = makePingPacket();
   // pprint(ping);
   serial.write(ping);
 

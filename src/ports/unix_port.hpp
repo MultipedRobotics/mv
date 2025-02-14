@@ -31,38 +31,42 @@ SOFTWARE.
 #include <termios.h>   // serial
 #include <vector>
 
-constexpr bool DD_WRITE = true; // false
-constexpr bool DD_READ  = !DD_WRITE;
+// constexpr bool DD_WRITE = true; // false
+// constexpr bool DD_READ  = !DD_WRITE;
 
 // macos is broken!!!
 #ifndef B1000000
   #define B1000000 0010010
 #endif
 
-// #include "unix_termcolor.hpp"
-//
-// static void pprint(const packet& pkt, bool hex){
-//     if ( hex ) std::cout << std::hex;
+// // #include "unix_termcolor.hpp"
+// //
+// // static void pprint(const packet& pkt, bool hex){
+// //     if ( hex ) std::cout << std::hex;
 
-//     std::cout << '[';
-//     // for (auto const& v: pkt) cout << int(v) << ",";
-//     for (int i=0; i < pkt.size(); ++i){
-//         int v = int(pkt[i]);
-//         if (i == 0 || i == 1) std::cout << termcolor::yellow << v <<
-//         termcolor::reset << ','; else if (i == 2) std::cout <<
-//         termcolor::blue << v << termcolor::reset << ','; else if (i == 3)
-//         std::cout << termcolor::green << v << termcolor::reset << ','; else
-//         if (i == 4) std::cout << termcolor::cyan << v << termcolor::reset <<
-//         ','; else if (i == 5) std::cout << termcolor::magenta << v <<
-//         termcolor::reset << ','; else if (i == pkt.size()-1) std::cout <<
-//         termcolor::yellow << v << termcolor::reset << ','; else std::cout <<
-//         v << ',';
-//     }
-//     std::cout << ']' << std::endl;
-//     if ( hex ) std::cout << std::dec;
-// }
+// //     std::cout << '[';
+// //     // for (auto const& v: pkt) cout << int(v) << ",";
+// //     for (int i=0; i < pkt.size(); ++i){
+// //         int v = int(pkt[i]);
+// //         if (i == 0 || i == 1) std::cout << termcolor::yellow << v <<
+// //         termcolor::reset << ','; else if (i == 2) std::cout <<
+// //         termcolor::blue << v << termcolor::reset << ','; else if (i == 3)
+// //         std::cout << termcolor::green << v << termcolor::reset << ','; else
+// //         if (i == 4) std::cout << termcolor::cyan << v << termcolor::reset <<
+// //         ','; else if (i == 5) std::cout << termcolor::magenta << v <<
+// //         termcolor::reset << ','; else if (i == pkt.size()-1) std::cout <<
+// //         termcolor::yellow << v << termcolor::reset << ','; else std::cout <<
+// //         v << ',';
+// //     }
+// //     std::cout << ']' << std::endl;
+// //     if ( hex ) std::cout << std::dec;
+// // }
 
-class SerialPort {
+class ServoPort {
+
+  static constexpr bool DD_WRITE = true; // false
+  static constexpr bool DD_READ  = !DD_WRITE;
+
   int fd;
   // std::array<std::uint8_t, 512> buffer;
   void set_dir(bool enabled) {
@@ -72,10 +76,10 @@ class SerialPort {
   }
 
 public:
-  SerialPort() {}
-  ~SerialPort() {}
+  ServoPort() {}
+  ~ServoPort() {}
 
-  void begin(const std::string &port) {
+  void init(const std::string &port) {
     int speed = B1000000;
     struct termios t;
 

@@ -4,8 +4,14 @@ list(APPEND examples
 
 LIST(APPEND pico_libs
     pico_stdlib
-    hardware_spi
-    hardware_i2c)
+    # hardware_spi
+    # hardware_i2c
+    hardware_dma
+    hardware_gpio
+    hardware_clocks
+    hardware_uart
+    pico_cyw43_arch_none
+    )
 
 foreach(app ${examples})
   add_executable(${app} ${app}.cpp)
