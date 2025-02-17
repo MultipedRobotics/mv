@@ -60,7 +60,7 @@ constexpr uint8_t READ16          = 2;
 struct ServoMoveSpeed_t {
   uint8_t id;
   uint16_t count; // 0-1023 counts
-  uint16_t speed; // 0-1023
+  uint16_t speed; // 1-1023, 0 is max, otherwise 1 is lowest, 1023 high
 };
 
 typedef std::vector<ServoMoveSpeed_t> SyncVec_t;

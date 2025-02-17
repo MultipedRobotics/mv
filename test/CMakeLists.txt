@@ -1,11 +1,9 @@
-include(FetchContent)
-
-# GTest -----------------
-FetchContent_Declare(gtest
-  GIT_REPOSITORY https://github.com/google/googletest.git
-  GIT_TAG        v1.15.2 # or another tag/branch
-)
-FetchContent_MakeAvailable(gtest)
+find_package(GTest REQUIRED)
+if(GTest_FOUND)
+    message(STATUS "=> Found gtest")
+else()
+    message(STATUS "*** Didn't find gtest")
+endif()
 
 enable_testing()
 

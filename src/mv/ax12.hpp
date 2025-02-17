@@ -125,7 +125,7 @@ static Servo_t get_servo_info(const mvpkt_t &pkt) {
 }
 
 // move (angle): 0-1023 counts (0-300 deg)
-// speed: 0-1023 counts, in increments of 0.111rpm, default is 0 (motor moves at
+// speed: 1-1023 counts, in increments of 0.111rpm, default is 0 (motor moves at
 // max speed)
 // no returned status packet since this uses the broadcast address
 static mvpkt_t makeMovePacket(const Protocol1::SyncVec_t &info) {
